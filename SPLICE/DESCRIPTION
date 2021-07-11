@@ -1,0 +1,44 @@
+Package: SPLICE
+Title: Synthetic Paid Loss and Incurred Cost Experience
+Version: 1.0.0
+Authors@R: c(
+    person("Benjamin", "Avanzi", role = "aut", email = "b.avanzi@unimelb.edu.au"),
+    person("Greg", "Taylor", role = "aut", email = "greg_taylor60@hotmail.com"),
+    person("Melantha", "Wang", role = c("aut", "cre"), email = "wang.melantha@gmail.com"),
+    person("Bernard", "Wong", role = "aut", email = "bernard.wong@unsw.edu.au"))
+Author: Benjamin Avanzi [aut], Greg Taylor [aut], Melantha Wang [aut, cre], Bernard Wong [aut]
+Maintainer: Melantha Wang <wang.melantha@gmail.com>
+Imports:
+    stats,
+    ggplot2,
+    magrittr,
+    rlang,
+    methods,
+    zoo
+Description: An extension to the individual claim simulator called "SynthETIC",
+    to simulate the evolution of case estimates of incurred losses through the
+    lifetime of a claim. The transactional simulation output now comprises key
+    dates, and both claim payments and revisions of estimated incurred losses.
+    An initial set of test parameters, designed to mirror the experience of a 
+    real insurance portfolio, were set up and applied by default to generate a 
+    realistic test data set of incurred histories (see vignette). However, the 
+    distributional assumptions used to generate this data set can be easily 
+    modified by users to match their experiences.
+License: GPL-3
+Encoding: UTF-8
+URL: https://github.com/agi-lab/SPLICE
+BugReports: https://github.com/agi-lab/SPLICE/issues
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Suggests: 
+    knitr,
+    rmarkdown,
+    dplyr,
+    RColorBrewer,
+    actuar,
+    poisson,
+    ChainLadder
+VignetteBuilder: knitr
+Depends: 
+    R (>= 2.10)

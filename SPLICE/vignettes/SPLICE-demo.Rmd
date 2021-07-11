@@ -1,0 +1,361 @@
+---
+title: "Enhanced SynthETIC: An Individual Incurred Loss Simulator"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Enhanced SynthETIC: An Individual Incurred Loss Simulator}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This vignette aims to illustrate how the updated `SynthETIC` package (Version 1.0.0+) can be used to generate the case estimates of incurred losses, as an addition to the earlier program which simulates paid claim experience of individual claims at a transactional level. See [the first vignette here](https://CRAN.R-project.org/package=SynthETIC) for a detailed example on how to use the package to simulate paid claim experience.
+
+The incurred program is structured as follows:
+
+1. [*Major Revision Histories*](#maRev): [Frequency](#maRev_no), [Time](#maRev_time) and [Size](#maRev_size) of major revisions of incurred losses
+2. [*Minor Revision Histories*](#miRev): [Frequency](#miRev_no), [Time](#miRev_time) and [Size](#miRev_size) of minor revisions of incurred losses
+3. [*Development of Case Estimates*](#claim_history): Consolidation of payments and incurred revisions, including optional adjustment for inflation in the case estimates.
+
+Set Up
+---
+```{r setup}
+library(SynthETIC)
+set.seed(20201006)
+ref_claim <- return_parameters()[1] # 200,000
+time_unit <- return_parameters()[2] # 0.25
+```
+
+1. Major Revisions {#maRev}
+---
+
+## 1.1 Frequency of Major Revisions {#maRev_no}
+### Input parameters
+* `claim_size_benchmark` = a value below which claims are assumed to have no major revisions other than one at claim notification, unless an alternative `maRev_no_function` function is specified
+* `maRev_no_function` = function of `claim_size` that generates and returns the number of major revisions. The default function is as follows:
+
+```{r}
+# package default benchmark, below which claims are assumed to have no major revisions 
+claim_size_benchmark <- 0.075 * ref_claim
+
+# package default function for frequency of major revisions
+dflt.maRev_no_function <- function(claim_size) {
+  if (claim_size <= claim_size_benchmark) {
+    k <- 1
+  } else {
+    # probability of 2 major revisions, increases with claim size
+    Pr2 <- 0.1 + 0.3 *
+      min(1, (claim_size - 0.075 * ref_claim)/(0.925 * ref_claim))
+    # probability of 3 major revisions, increases with claim size
+    Pr3 <- 0.5 *
+      min(1, max(0, claim_size - 0.25 * ref_claim)/(0.75 * ref_claim))
+    # probability of 1 major revision i.e. only one at claim notification
+    Pr1 <- 1 - Pr2 - Pr3
+    k <- sample(c(1, 2, 3), size = 1, replace = TRUE, prob = c(Pr1, Pr2, Pr3))
+  }
+
+  k
+}
+```
+
+### Implementation and Output
+```{r}
+# Number of major revisions
+# shorter equivalent code:
+# major <- claim_maRev_no(test_claims_object)
+major <- claim_maRev_no(
+  claims = test_claims_object,
+  maRev_no_function = dflt.maRev_no_function
+)
+
+# view the major revision history of the first claim in the 1st occurrence period
+# note that the time and size of the major revisions are yet to be generated
+major[[1]][[1]]
+```
+
+## 1.2 Time of Major Revisions {#maRev_time}
+### Input parameters
+* `maRev_time_function` = function of `maRev_no`, `claim_size`, `setldel`, `payment_delays` that generates and returns the epochs of major revisions. The default function is as follows:
+
+```{r}
+# package default function for time of major revisions (measured from notification)
+dflt.maRev_time_function <- function(maRev_no, claim_size, setldel, payment_delays) {
+  k <- maRev_no
+  no_pmt <- length(payment_delays)
+  maRev_time <- rep(NA, times = k)
+  
+  # first revision at notification
+  maRev_time[1] <- 0
+  if (k > 1) {
+    # if the claim has multiple major revisions
+    # the probability of having the last revision exactly at the second last partial payment
+    p <- 0.2 *
+      min(1, max(0, (claim_size - ref_claim) / (14 * ref_claim)))
+    at_second_last_pmt <- sample(c(0, 1), size = 1, replace = TRUE, prob = c(1-p, p))
+    
+    # does the last revision occur at the second last partial payment?
+    if (at_second_last_pmt == 0) {
+      # -> no revision at second last payment
+      maRev_time[2:k] <- sort(rtri(k - 1, min = setldel/3, max = setldel, mode = setldel/3))
+    } else {
+      # -> yes, revision at second last payment
+      maRev_time[k] <- sum(payment_delays[1:(no_pmt - 1)])
+      if (k > 2) {
+        maRev_time[2:(k-1)] <- sort(
+          rtri(k - 2, min = maRev_time[k]/3, max = maRev_time[k], mode = maRev_time[k]/3))
+      }
+    }
+  }
+  maRev_time
+}
+```
+
+Note that `rtri` is a function to generate random numbers from a triangular distribution that is included as part of the `SynthETIC` package.
+
+### Implementation and Output
+```{r}
+# Time of major revisions
+# shorter equivalent code:
+# major <- claim_maRev_time(test_claims_object, major)
+major <- claim_maRev_time(
+  claims = test_claims_object,
+  maRev_list = major, # we will update the previous major list
+  maRev_time_function = dflt.maRev_time_function
+)
+
+# view the major revision history of the first claim in the 1st occurrence period
+# observe that we have now updated the time of major revisions
+major[[1]][[1]]
+```
+
+## 1.3 Size of Major Revisions {#maRev_size}
+### Input parameters
+* `maRev_size_function` = function of `maRev_no` that generates and returns the sizes of major revision multipliers. The default function is as follows:
+
+```{r}
+# package default function for sizes of major revisions
+dflt.maRev_size_function <- function(maRev_no) {
+  maRev_multiplier <- rep(NA, times = maRev_no)
+  # set revision size = 1 for first revision (i.e. the one at notification)
+  maRev_multiplier[1] <- 1
+  if (maRev_no > 1) {
+    # if the claim has multiple major revisions
+    maRev_multiplier[2] <- stats::rlnorm(n = 1, meanlog = 1.8, sdlog = 0.2)
+    if (maRev_no > 2) {
+      # the last revision factor depends on what happened at the second major revision
+      mu <- 1 + 0.07 * (6 - maRev_multiplier[2])
+      maRev_multiplier[3] <- stats::rlnorm(n = 1, meanlog = mu, sdlog = 0.1)
+    }
+  }
+
+  maRev_multiplier
+}
+```
+
+### Implementation and Output
+```{r}
+# Sizes of major revisions
+# shorter equivalent code:
+# major <- claim_maRev_size(major)
+major <- claim_maRev_size(
+  maRev_list = major,
+  maRev_size_function = dflt.maRev_size_function
+)
+
+# view the major revision history of the first claim in the 1st occurrence period
+# observe that we have now updated the size of major revisions
+major[[1]][[1]]
+```
+
+For this particular claim record, we observe 3 major revisions:
+
+- First one at claim notification with revision size $g_1 = 1$ (note that the notification of a claim is considered as a major revision, so all claims have at least 1 major revision);
+- Second one at delay $\tau_2 = 7.864995$ from notification and has revision size of $g_2 = 5.304181$ on the incurred loss;
+- Third one at delay $\tau_3 = 12.444899$ from notification and has revision size of $g_3 = 2.539398$ on the incurred loss. As commented in the paper, a claim may experience up to two major revisions in addition to the initial one, but the second, if it occurs at all, is likely to be smaller than the first.
+
+
+2. Minor Revisions {#miRev}
+---
+
+Compared to the major revisions, the simulation of minor revisions may require slightly more complicated input specification, as we need to separate the case of minor revisions that occur simultaneously with a partial payment (`miRev_atP`) and the ones that do not.
+
+## 2.1 Frequency of Minor Revisions {#miRev_no}
+### Input parameters
+* `miRev_no_atP_function` = function of `no_pmt` (number of partial payments) that generates and returns the number of minor revisions that are simultaneous with a partial payment
+* `miRev_no_NatP_function` = function of `setldel` (settlement delay) that generates and returns the number of minor revisions that are not simultaneous with a partial payment
+
+```{r}
+# package default function for frequency of minor revisions at partial payments
+dflt.miRev_no_atP_function <- function(no_pmt) {
+  # number of minor revisions, simultaneous with partial payment
+  rev_atP <- sample(c(0, 1), size = no_pmt, replace = TRUE)
+  # return the revision at payment indicators
+  rev_atP
+}
+
+dflt.miRev_no_NatP_function <- function(setldel) {
+  k2 <- stats::rgeom(n = 1, prob = 1 / (min(3, setldel/4) + 1))
+  k2
+}
+```
+
+### Implementation and Output
+```{r}
+# Number of minor revisions
+# shorter equivalent code:
+# minor <- claim_miRev_no(test_claims_object)
+minor <- claim_miRev_no(
+  claims = test_claims_object,
+  miRev_no_atP_function = dflt.miRev_no_atP_function,
+  miRev_no_NatP_function = dflt.miRev_no_NatP_function
+)
+
+# view the minor revision history of the first claim in the 1st occurrence period
+# note that the time and size of the minor revisions are yet to be generated
+minor[[1]][[1]]
+```
+
+## 2.2 Time of Minor Revisions {#miRev_time}
+### Input parameters
+* `miRev_time_NatP_function` = function of `miRev_no_NatP`, `setldel` that generates and returns the epochs of minor revisions that do not occur with a partial payment, measured from claim notification. The default function is given below.
+* Note that there is no need to specify a `miRev_time_atP_function` because the revision times simply coincide with the epochs of the relevant partial payments.
+
+```{r}
+# package default function for time of minor revisions that do not coincide with a payment
+dflt.miRev_time_NatP_function <- function(miRev_no_NatP, setldel) {
+  sort(stats::runif(n = miRev_no_NatP, min = setldel/6, max = setldel))
+}
+```
+
+### Implementation and Output
+```{r}
+# Time of minor revisions
+# shorter equivalent code:
+# minor <- claim_miRev_time(test_claims_object, minor)
+minor <- claim_miRev_time(
+  claims = test_claims_object,
+  miRev_list = minor, # we will update the previous minor list
+  miRev_time_NatP_function = dflt.miRev_time_NatP_function
+)
+
+# view the minor revision history of the first claim in the 1st occurrence period
+# observe that we have now updated the time of minor revisions
+minor[[1]][[1]]
+```
+
+## 2.3 Size of Minor Revisions {#miRev_size}
+### Input parameters
+* `miRev_size_function` = function of `miRev_time` (vector, epochs of all minor revisions), `maRev_time_2nd` (time of the second major revision), `setldel` that generates and returns the sizes of the minor revision multipliers. The default function is as follows:
+
+```{r}
+# package default function for sizes of minor revisions
+dflt.miRev_size_function <- function(miRev_time, maRev_time_2nd, setldel) {
+  
+  # k = number of minor revisions
+  k <- length(miRev_time)
+  miRev_multiplier <- vector(length = k)
+
+  if (k >= 1) {
+    for (i in 1:k) {
+      curr <- miRev_time[i]
+      if (curr <= setldel/3) {
+        if (curr > maRev_time_2nd) {
+          miRev_multiplier[i] <- stats::rlnorm(n = 1, meanlog = 0.15, sdlog = 0.05)
+        } else {
+          miRev_multiplier[i] <- stats::rlnorm(n = 1, meanlog = 0.15, sdlog = 0.1)
+        }
+      } else if (curr <= (2/3) * setldel) {
+        if (curr > maRev_time_2nd) {
+          miRev_multiplier[i] <- stats::rlnorm(n = 1, meanlog = 0, sdlog = 0.05)
+        } else {
+          miRev_multiplier[i] <- stats::rlnorm(n = 1, meanlog = 0, sdlog = 0.1)
+        }
+      } else {
+        if (curr > maRev_time_2nd) {
+          miRev_multiplier[i] <- stats::rlnorm(n = 1, meanlog = -0.1, sdlog = 0.05)
+        } else {
+          miRev_multiplier[i] <- stats::rlnorm(n = 1, meanlog = -0.1, sdlog = 0.1)
+        }
+      }
+    }
+  }
+  
+  miRev_multiplier
+}
+```
+
+### Implementation and Output
+```{r}
+# Sizes of minor revisions
+# shorter equivalent code:
+# minor <- claim_miRev_size(claims, major, minor)
+minor <- claim_miRev_size(
+  claims = test_claims_object,
+  maRev_list = major,
+  miRev_list = minor,
+  miRev_size_function = dflt.miRev_size_function
+)
+
+# view the minor revision history of the first claim in the 1st occurrence period
+# observe that we have now updated the size of minor revisions
+minor[[1]][[1]]
+```
+
+For this particular claim record, we observe 2 minor revisions that coincide with a payment and zero minor revisions outside of the partial payment times.
+
+
+3. Development of Case Estimates {#claim_history}
+---
+This section requires no additional input specification from the program user (except the quarterly inflation rates - which should match with what was used in `claim_payment_inflation`) and simply consolidates the partial payments and the incurred revisions generated above, subject to some additional revision constraints (`?claim_history` for details). The end product is a full transactional history of the case estimates of the individual claims over its lifetime.
+
+We can choose to exclude (default) or include adjustment for inflation:
+
+### Implementation and Output
+```{r}
+result <- claim_history(test_claims_object, major, minor)
+result_inflated <- claim_history(
+  test_claims_object, major, minor, 
+  inflated = TRUE, base_inflation_vector = rep((1 + 0.02)^(1/4) - 1, times = 80))
+```
+
+Observe how the results differ between the case estimates with/without inflation:
+```{r}
+data <- generate_incurred_dataset(test_claims_object, result)
+str(data)
+head(data, n = 9)
+
+data_inflated <- generate_incurred_dataset(test_claims_object, result_inflated)
+str(data_inflated)
+head(data_inflated, n = 9)
+```
+
+Note that the above `data` and `data_inflated` datasets are included as part of the package as `test_incurred_dataset` and `test_incurred_dataset_inflated`:
+```{r}
+str(test_incurred_dataset)
+str(test_incurred_dataset_inflated)
+```
+
+Chain-Ladder Triangles
+---
+`SynthETIC` also provides an option to produce the incurred triangles aggregated by accident and development periods:
+
+```{r}
+square_inc <- incurred_output(result)
+square_cum <- incurred_output(result, incremental = F)
+square_inflated_inc <- incurred_output(result_inflated)
+square_inflated_cum <- incurred_output(result_inflated, incremental = F)
+
+yearly_inc <- incurred_output(result, aggregate_level = 4)
+yearly_cum <- incurred_output(result, aggregate_level = 4, incremental = F)
+yearly_cum
+
+# apply standard actuarial reserving techniques using the `ChainLadder` package
+# selected <- attr(ChainLadder::ata(yearly_cum), "vwtd")
+```
+
+
