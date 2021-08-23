@@ -1,4 +1,5 @@
 #' @keywords internal
+#' @import SynthETIC
 "_PACKAGE"
 
 # The following block is used by usethis to automatically manage

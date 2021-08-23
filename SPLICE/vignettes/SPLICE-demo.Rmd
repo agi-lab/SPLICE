@@ -1,8 +1,8 @@
 ---
-title: "Enhanced SynthETIC: An Individual Incurred Loss Simulator"
+title: "SPLICE: A Synthetic Paid Loss and Incurred Cost Experience Simulator"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Enhanced SynthETIC: An Individual Incurred Loss Simulator}
+  %\VignetteIndexEntry{SPLICE: A Synthetic Paid Loss and Incurred Cost Experience Simulator}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,9 +14,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette aims to illustrate how the updated `SynthETIC` package (Version 1.0.0+) can be used to generate the case estimates of incurred losses, as an addition to the earlier program which simulates paid claim experience of individual claims at a transactional level. See [the first vignette here](https://CRAN.R-project.org/package=SynthETIC) for a detailed example on how to use the package to simulate paid claim experience.
+This vignette aims to illustrate how the `SPLICE` package can be used to generate the case estimates of incurred losses of individual claims.
 
-The incurred program is structured as follows:
+`SPLICE` is an extension to an open source simulator of **paid** claim experience called [`SynthETIC`](https://CRAN.R-project.org/package=SynthETIC), which offers flexible modelling of occurrence, notification, as well as the timing and magnitude of individual partial payments (see the [package documentation and vignette](https://CRAN.R-project.org/package=SynthETIC) for a detailed example on how to use the package to simulate paid claims experience).
+
+`SPLICE` enables the modelling of incurred loss estimates, via the following three modules:
 
 1. [*Major Revision Histories*](#maRev): [Frequency](#maRev_no), [Time](#maRev_time) and [Size](#maRev_size) of major revisions of incurred losses
 2. [*Minor Revision Histories*](#miRev): [Frequency](#miRev_no), [Time](#miRev_time) and [Size](#miRev_size) of minor revisions of incurred losses
@@ -25,7 +27,7 @@ The incurred program is structured as follows:
 Set Up
 ---
 ```{r setup}
-library(SynthETIC)
+library(SPLICE)
 set.seed(20201006)
 ref_claim <- return_parameters()[1] # 200,000
 time_unit <- return_parameters()[2] # 0.25

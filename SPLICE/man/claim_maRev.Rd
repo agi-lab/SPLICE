@@ -9,7 +9,7 @@
 \usage{
 claim_maRev_no(
   claims,
-  claim_size_benchmark = 0.075 * .pkgenv$ref_claim,
+  claim_size_benchmark,
   maRev_no_function,
   frequency_vector = claims$frequency_vector,
   claim_size_list = claims$claim_size_list

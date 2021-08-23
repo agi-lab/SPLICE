@@ -41,4 +41,5 @@ Suggests:
     ChainLadder
 VignetteBuilder: knitr
 Depends: 
-    R (>= 2.10)
+    R (>= 2.10),
+    SynthETIC (>= 0.1.0)

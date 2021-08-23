@@ -82,6 +82,9 @@ individual_claim_history <- function(
   Mi_multp_atP <- miRev$miRev_multiplier_atP
   Mi_multp_NatP <- miRev$miRev_multiplier_NatP
 
+  # inherit time unit from SynthETIC
+  time_unit <- SynthETIC::return_parameters()[2]
+
   for (i in no_txn:2) {
     if (i == no_txn) {
       # initialise at claim closure
@@ -106,8 +109,8 @@ individual_claim_history <- function(
         sset <- txn_t[which(txn_type[1:(i - 1)] %in% c("Ma", "Mi", "PMa", "PMi"))]
         next_rev_time <- max(sset[length(sset)], 0)
         discount <-
-          base_inflation(next_rev_time * .pkgenv$time_unit * 4) /
-          base_inflation(txn_t[i] * .pkgenv$time_unit * 4)
+          base_inflation(next_rev_time * time_unit * 4) /
+          base_inflation(txn_t[i] * time_unit * 4)
         y_left[i] <- y_right[i] * discount
 
         # need y >= k1_inv * c after the retrospective revision
@@ -122,8 +125,8 @@ individual_claim_history <- function(
         sset <- txn_t[which(txn_type[1:(i - 1)] %in% c("Ma", "Mi", "PMa", "PMi"))]
         next_rev_time <- max(sset[length(sset)], 0)
         discount <-
-          base_inflation(next_rev_time * .pkgenv$time_unit * 4) /
-          base_inflation(txn_t[i] * .pkgenv$time_unit * 4)
+          base_inflation(next_rev_time * time_unit * 4) /
+          base_inflation(txn_t[i] * time_unit * 4)
         y_left[i] <- y_right[i] * discount
 
         # need y >= k2_inv * c after the retrospective revision
@@ -148,8 +151,8 @@ individual_claim_history <- function(
         sset <- txn_t[which(txn_type[1:(i - 1)] %in% c("Ma", "Mi", "PMa", "PMi"))]
         next_rev_time <- max(sset[length(sset)], 0)
         discount <-
-          base_inflation(next_rev_time * .pkgenv$time_unit * 4) /
-          base_inflation(txn_t[i] * .pkgenv$time_unit * 4)
+          base_inflation(next_rev_time * time_unit * 4) /
+          base_inflation(txn_t[i] * time_unit * 4)
         y_left[i] <- y_right[i] * discount
 
         # need y >= k1_inv * c after the retrospective revision
@@ -164,8 +167,8 @@ individual_claim_history <- function(
         sset <- txn_t[which(txn_type[1:(i - 1)] %in% c("Ma", "Mi", "PMa", "PMi"))]
         next_rev_time <- max(sset[length(sset)], 0)
         discount <-
-          base_inflation(next_rev_time * .pkgenv$time_unit * 4) /
-          base_inflation(txn_t[i] * .pkgenv$time_unit * 4)
+          base_inflation(next_rev_time * time_unit * 4) /
+          base_inflation(txn_t[i] * time_unit * 4)
         y_left[i] <- y_right[i] * discount
 
         # need y >= k2_inv * c after the retrospective revision
@@ -320,7 +323,8 @@ claim_history <- function(
   I <- length(claims$frequency_vector)
   # convert to number of calendar quarters (floor should be unnecessary)
   # times 2 to get the maximum calendar period
-  max_quarters <- floor(I * .pkgenv$time_unit * 4) * 2
+  time_unit <- SynthETIC::return_parameters()[2]
+  max_quarters <- floor(I * time_unit * 4) * 2
 
   # set nil base inflation by default
   if (inflated == FALSE | missing(base_inflation_vector)) {

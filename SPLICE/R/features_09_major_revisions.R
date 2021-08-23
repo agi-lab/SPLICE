@@ -9,7 +9,7 @@
 #' each of the claims occurring in each of the periods.
 #'
 #' @param claims an `claims` object containing all the simulated quantities
-#' (other than those related to incurred loss), see `claims`.
+#' (other than those related to incurred loss), see \link[SynthETIC]{claims}.
 #' @param claim_size_benchmark a value below which claims are assumed to have
 #' no major revisions other than one at claim notification, unless an
 #' alternative `maRev_no_function` function is specified, default benchmark at
@@ -60,11 +60,17 @@
 #' @name claim_maRev
 claim_maRev_no <- function(
   claims,
-  claim_size_benchmark = 0.075 * .pkgenv$ref_claim,
-  maRev_no_function,
+  rfun,
+  paramfun,
+  # claim_size_benchmark,
+  # maRev_no_function,
   frequency_vector = claims$frequency_vector,
-  claim_size_list = claims$claim_size_list
+  claim_size_list = claims$claim_size_list,
+  ...
 ) {
+
+
+
 
   # default function to simulate the number of major revisions
   # NOTE: the maRev_size_function takes as an assumption that there are max 3
@@ -72,13 +78,16 @@ claim_maRev_no <- function(
   # the later module (maRev_size) too
   if (missing(maRev_no_function)) {
     maRev_no_function <- function(claim_size) {
+      # inherit ref_claim from SynthETIC
+      ref_claim <- SynthETIC::return_parameters()[1]
+      claim_size_benchmark <- 0.075 * ref_claim
       if (claim_size <= claim_size_benchmark) {
         k <- 1
       } else {
         Pr2 <- 0.1 + 0.3 *
-          min(1, (claim_size - 0.075*.pkgenv$ref_claim)/(0.925*.pkgenv$ref_claim))
+          min(1, (claim_size - 0.075*ref_claim)/(0.925*ref_claim))
         Pr3 <- 0.5 *
-          min(1, max(0, claim_size - 0.25*.pkgenv$ref_claim)/(0.75*.pkgenv$ref_claim))
+          min(1, max(0, claim_size - 0.25*ref_claim)/(0.75*ref_claim))
         Pr1 <- 1 - Pr2 - Pr3
         k <- sample(c(1, 2, 3), size = 1, replace = TRUE, prob = c(Pr1, Pr2, Pr3))
       }
@@ -169,11 +178,15 @@ claim_maRev_time <- function(
       no_pmt <- length(payment_delays)
       maRev_time <- rep(NA, times = k)
       maRev_time[1] <- 0 # first revision at notification
+
+      # inherit ref_claim from SynthETIC
+      ref_claim <- SynthETIC::return_parameters()[2]
+
       if (k > 1) {
         # if the claim has multiple major revisions
         # does the last revision occur exactly at the second last partial payment?
         p <- 0.2 *
-          min(1, max(0, (claim_size - .pkgenv$ref_claim) / (14*.pkgenv$ref_claim)))
+          min(1, max(0, (claim_size - ref_claim) / (14 * ref_claim)))
         at_second_last_pmt <- sample(c(0, 1), size = 1, replace = TRUE, prob = c(1-p, p))
         if (at_second_last_pmt == 0) {
           # no revision at second last payment
