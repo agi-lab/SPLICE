@@ -9,57 +9,62 @@
 \usage{
 claim_maRev_no(
   claims,
-  claim_size_benchmark,
-  maRev_no_function,
+  rfun,
+  paramfun,
   frequency_vector = claims$frequency_vector,
-  claim_size_list = claims$claim_size_list
+  claim_size_list = claims$claim_size_list,
+  ...
 )
 
 claim_maRev_time(
   claims,
   maRev_list,
-  maRev_time_function,
+  rfun,
+  paramfun,
   claim_size_list = claims$claim_size_list,
   settlement_list = claims$settlement_list,
-  payment_delay_list = claims$payment_delay_list
+  payment_delay_list = claims$payment_delay_list,
+  ...
 )
 
-claim_maRev_size(maRev_list, maRev_size_function)
+claim_maRev_size(maRev_list, rfun, paramfun, ...)
 }
 \arguments{
-\item{claims}{an \code{claims} object containing all the simulated quantities
-(other than those related to incurred loss), see \code{claims}.}
+\item{claims}{an \code{\link[SynthETIC]{claims}} object containing all the
+simulated quantities (other than those related to incurred loss), see
+\code{\link[SynthETIC]{claims}}.}
 
-\item{claim_size_benchmark}{a value below which claims are assumed to have
-no major revisions other than one at claim notification, unless an
-alternative \code{maRev_no_function} function is specified, default benchmark at
-0.075 * \code{ref_claim}.}
+\item{rfun}{optional alternative random sampling function for:
+\itemize{
+\item \code{claim_maRev_no}: the number of major revisions;
+\item \code{claim_maRev_time}: the epochs of major revisions measured from claim
+notification;
+\item \code{claim_maRev_size}: the sizes of the major revision multipliers.
+}
 
-\item{maRev_no_function}{function of \code{claim_size} that generates and returns
-the number of major revisions (see Details for the default function).}
+See Details for default.}
+
+\item{paramfun}{parameters for the random sampling function, as a function of
+other claim characteristics such as \code{claim_size}; see Details.}
 
 \item{frequency_vector}{a vector of claim frequencies for all the periods
-(not required if the \code{claims} argument is provided).}
+(not required if the \code{claims} argument is provided); see
+\code{\link[SynthETIC]{claim_frequency}}.}
 
 \item{claim_size_list}{list of claim sizes (not required if the \code{claims}
-argument is provided).}
+argument is provided); see \code{\link[SynthETIC]{claim_size}}.}
+
+\item{...}{other arguments/parameters to be passed onto \code{paramfun}.}
 
 \item{maRev_list}{nested list of major revision histories (with non-empty
 revision frequencies).}
 
-\item{maRev_time_function}{function of \code{maRev_no}, \code{claim_size}, \code{setldel},
-\code{payment_delays} that generates and returns the epochs of major revisions
-measured from claim notification (see Details for the default function).}
-
 \item{settlement_list}{list of settlement delays (not required if the
-\code{claims} argument is provided).}
+\code{claims} argument is provided); see \code{\link[SynthETIC]{claim_closure}}.}
 
 \item{payment_delay_list}{(compound) list of inter partial delays (not
-required if the \code{claims} argument is provided).}
-
-\item{maRev_size_function}{function of \code{maRev_no} that generates and returns
-the sizes of the major revision multipliers (see Details for the default
-function).}
+required if the \code{claims} argument is provided); see
+\code{\link[SynthETIC]{claim_payment_delay}}.}
 }
 \value{
 A nested list structure such that the \emph{j}th component of the \emph{i}th
@@ -97,6 +102,9 @@ will occur for claims of size smaller than or equal to \code{claim_size_benchmar
 \eqn{Pr(K = 3)} \tab \eqn{= 0.5min(1, max(0, claim_size - 0.25 * ref_claim)/ (0.75 * ref_claim))} \cr
 \eqn{Pr(K = 1)} \tab \eqn{= 1 - Pr(K = 2) - Pr(K = 3)}
 }
+where \code{ref_claim} is a package-wise global variable that user should define
+by \code{\link[SynthETIC]{set_parameters}} (if moving away from the default).
+
 The idea is that	major revisions are more likely for larger claims, and do
 not occur at all for the smallest claims. Note also that by default a claim
 may experience \strong{up to a maximum of 2 major revisions} in addition to the
@@ -115,8 +123,8 @@ The last major revision for a claim may occur at the time of the second last
 partial payment (which is usually the major settlement payment) with
 probability
 \deqn{0.2 min(1, max(0, (claim_size - ref_claim) / (14 * ref_claim)))}
-where \code{ref_claim} is a package-wise global variable that user is required to
-define at the top of their code using \code{set_parameters()}.
+where \code{ref_claim} is a package-wise global variable that user should define
+by \code{\link[SynthETIC]{set_parameters}} (if moving away from the default).
 
 Now, if there is a major revision at the time of the second last partial
 payment, then \eqn{\tau_k, k = 2, ..., K - 1} are sampled from a triangular
@@ -162,11 +170,11 @@ The revision multipliers are subject to further constraints to ensure that
 the revised incurred estimate never falls below what has already been paid.
 This is dicussed in \code{\link{claim_history}}.
 
-The major revision multipliers apply to the incurred loss estimates, that is,
-a revision multiplier of 2.54 means that at the time of the major revision
-the incurred loss increases by a factor of 2.54. We highlight this as in the
-case of minor revisions, the multiplers will instead apply to the outstanding
-claim amounts, see \code{\link{claim_miRev}}.
+\strong{The major revision multipliers apply to the incurred loss estimates}, that
+is, a revision multiplier of 2.54 means that at the time of the major
+revision the incurred loss increases by a factor of 2.54. We highlight this
+as \strong{in the case of minor revisions, the multipliers will instead apply to
+outstanding claim amounts}, see \code{\link{claim_miRev}}.
 }
 
 \examples{
@@ -185,5 +193,5 @@ major <- claim_maRev_size(major)
 major[[1]][[1]]
 }
 \seealso{
-\code{\link{claims}}
+\code{\link[SynthETIC]{claims}}
 }

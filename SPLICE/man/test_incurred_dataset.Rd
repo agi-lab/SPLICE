@@ -3,6 +3,7 @@
 \docType{data}
 \name{test_incurred_dataset}
 \alias{test_incurred_dataset}
+\alias{test_incurred_dataset_noInf}
 \alias{test_incurred_dataset_inflated}
 \title{Incurred Case Estimates Dataset}
 \format{
@@ -10,8 +11,9 @@ A data frame with 31,250 rows and 9 variables:
 \describe{
 \item{claim_no}{claim number, which uniquely characterises each claim.}
 \item{claim_size}{size of the claim (in constant dollar values).}
-\item{txn_time}{delay from notification to the subject transaction.}
-\item{txn_t}{double; time of transaction (on a continuous time scale).}
+\item{txn_time}{double; the "absolute" time of transaction (on a continuous
+time scale).}
+\item{txn_delay}{delay from notification to the subject transaction.}
 \item{txn_type}{character; nature of the transactions, "Ma" for major
 revision, "Mi" for minor revision, "P" for payment,
 "PMa" for major revision coincident with a payment,
@@ -27,14 +29,16 @@ transactions that do not involve a revision.}
 }
 }
 \usage{
-test_incurred_dataset
+test_incurred_dataset_noInf
 
 test_incurred_dataset_inflated
 }
 \description{
 A dataset of 31,250 records of transactions (partial payments and incurred
-revisions) associated with the 3,624 claims in \code{test_claim_dataset}. The
-\verb{_inflated} version includes inflation adjustment in the case estimates.
+revisions) associated with the 3,624 claims described in \code{SynthETIC}'s
+\code{\link[SynthETIC]{test_claim_dataset}}. The \verb{_inflated} version includes
+inflation adjustment in the case estimates, while the \verb{_noInf} version
+excludes any inflation effects.
 }
 \seealso{
 \code{\link{generate_incurred_dataset}}
