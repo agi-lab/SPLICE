@@ -234,7 +234,7 @@ individual_claim_history <- function(
 #' @param base_inflation_vector vector showing **quarterly** base inflation
 #' rates (quarterly effective) for all the periods under consideration (default
 #' is nil base inflation), should be consistent with the input inflation vector
-#' in \code{\link{claim_payment_inflation}}.
+#' in \code{\link[SynthETIC]{claim_payment_inflation}}.
 #' @param keep_all TRUE to keep the paid, outstanding payments, total incurred
 #' estimates just before the revision, FALSE to keep only the estimates right
 #' after the revision (`_right`).
