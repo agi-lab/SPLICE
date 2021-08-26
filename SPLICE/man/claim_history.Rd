@@ -50,9 +50,9 @@ sub-list provides a full transactional history of the \emph{j}th claim of
 occurrence period \emph{i}. The "unit list" (i.e. the smallest, innermost
 sub-list) contains the following components:
 \tabular{ll}{
-\code{txn_time} \tab Delays from notification to the transactions (payment or
+\code{txn_delay} \tab Delays from notification to the transactions (payment or
 incurred revision). \cr
-\code{txn_t} \tab Times of the transactions (from the commencement of the
+\code{txn_time} \tab Times of the transactions (from the commencement of the
 first occurrence period). \cr
 \code{txn_type} \tab Types of the transactions, "Ma" for major revision, "Mi" for
 minor revision, "P" for payment, "PMa" for major revision coincident with a

@@ -22,13 +22,13 @@ generate_incurred_dataset <- function(
   claims, incurred_history) {
 
   I <- length(claims$frequency_vector)
-  no_txn <- lengths(lapply(unlist(incurred_history, recursive = F), `[[`, "txn_time"))
+  no_txn <- lengths(lapply(unlist(incurred_history, recursive = F), `[[`, "txn_delay"))
 
   incurred_dataset <- data.frame(
     claim_no = rep(1:sum(claims$frequency_vector), times = no_txn),
     claim_size = rep(unlist(claims$claim_size_list), times = no_txn),
-    txn_time = unlist(lapply(unlist(incurred_history, recursive = F), `[[`, "txn_t")),
-    txn_dalay = unlist(lapply(unlist(incurred_history, recursive = F), `[[`, "txn_time")),
+    txn_time = unlist(lapply(unlist(incurred_history, recursive = F), `[[`, "txn_time")),
+    txn_dalay = unlist(lapply(unlist(incurred_history, recursive = F), `[[`, "txn_delay")),
     txn_type = unlist(lapply(unlist(incurred_history, recursive = F), `[[`, "txn_type")),
     incurred = unlist(lapply(unlist(incurred_history, recursive = F), `[[`, "incurred_right")),
     OCL = unlist(lapply(unlist(incurred_history, recursive = F), `[[`, "OCL_right")),
@@ -103,7 +103,7 @@ incurred_output <- function(
   for (i in 1:I) {
     for (j in 1:frequency_vector[i]) {
       # convert to discrete time scale (t in terms of absolute time)
-      t <- ceiling(incurred_history[[i]][[j]]$txn_t)
+      t <- ceiling(incurred_history[[i]][[j]]$txn_time)
       incurred_right <- incurred_history[[i]][[j]]$incurred_right
 
       # Firstly need to treat the out-of-bound transaction times
@@ -129,7 +129,7 @@ incurred_output <- function(
     }
   }
 
-  no_txn <- lengths(lapply(unlist(incurred_history, recursive = F), `[[`, "txn_time"))
+  no_txn <- lengths(lapply(unlist(incurred_history, recursive = F), `[[`, "txn_delay"))
   total_no_txn <- sum(no_txn)
   if (adjustment / total_no_txn > 0.03) {
     warning("More than 3% of the transactions were outside the bound.")

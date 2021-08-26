@@ -61,18 +61,18 @@ individual_claim_history <- function(
     maRev_NatP <- maRev_NatP[-maRev$maRev_no]
   }
   miRev_NatP <- miRev$miRev_time_NatP
-  txn_time <- sort(c(Ptimes, maRev_NatP, miRev_NatP))
-  txn_t <- txn_time + occurrence + notidel # in absolute time
-  txn_type <- rep(NA, length(txn_time))
-  txn_type[txn_time %in% Ptimes] <- rev_atP
-  txn_type[txn_time %in% maRev_NatP] <- "Ma"
-  txn_type[txn_time %in% miRev_NatP] <- "Mi"
+  txn_delay <- sort(c(Ptimes, maRev_NatP, miRev_NatP))
+  txn_time <- txn_delay + occurrence + notidel # in absolute time
+  txn_type <- rep(NA, length(txn_delay))
+  txn_type[txn_delay %in% Ptimes] <- rev_atP
+  txn_type[txn_delay %in% maRev_NatP] <- "Ma"
+  txn_type[txn_delay %in% miRev_NatP] <- "Mi"
   stopifnot(txn_type %in% c("P", "PMi", "PMa", "Mi", "Ma"))
 
   # need cumulative claims paid, outstanding claims liability and incurred
   # at time of each transaction
   # _left denotes right before the transaction (t - 0) and _right denotes after
-  no_txn <- length(txn_time)
+  no_txn <- length(txn_delay)
   c_left <- x_left <- y_left <- c_right <- x_right <- y_right <- rep(NA, no_txn)
   p_index <- no_pmt
   Ma_index <- maRev$maRev_no
@@ -106,11 +106,11 @@ individual_claim_history <- function(
       if (txn_type[i] == "PMa") {
         # adjustment for base inflation
         # need the time of the "next" revision
-        sset <- txn_t[which(txn_type[1:(i - 1)] %in% c("Ma", "Mi", "PMa", "PMi"))]
+        sset <- txn_time[which(txn_type[1:(i - 1)] %in% c("Ma", "Mi", "PMa", "PMi"))]
         next_rev_time <- max(sset[length(sset)], 0)
         discount <-
           base_inflation(next_rev_time * time_unit * 4) /
-          base_inflation(txn_t[i] * time_unit * 4)
+          base_inflation(txn_time[i] * time_unit * 4)
         y_left[i] <- y_right[i] * discount
 
         # need y >= k1_inv * c after the retrospective revision
@@ -122,11 +122,11 @@ individual_claim_history <- function(
       } else if (txn_type[i] == "PMi") {
         # adjustment for base inflation
         # need the time of the "next" revision
-        sset <- txn_t[which(txn_type[1:(i - 1)] %in% c("Ma", "Mi", "PMa", "PMi"))]
+        sset <- txn_time[which(txn_type[1:(i - 1)] %in% c("Ma", "Mi", "PMa", "PMi"))]
         next_rev_time <- max(sset[length(sset)], 0)
         discount <-
           base_inflation(next_rev_time * time_unit * 4) /
-          base_inflation(txn_t[i] * time_unit * 4)
+          base_inflation(txn_time[i] * time_unit * 4)
         y_left[i] <- y_right[i] * discount
 
         # need y >= k2_inv * c after the retrospective revision
@@ -148,11 +148,11 @@ individual_claim_history <- function(
       if (txn_type[i] == "Ma") {
         # adjustment for base inflation
         # need the time of the "next" revision
-        sset <- txn_t[which(txn_type[1:(i - 1)] %in% c("Ma", "Mi", "PMa", "PMi"))]
+        sset <- txn_time[which(txn_type[1:(i - 1)] %in% c("Ma", "Mi", "PMa", "PMi"))]
         next_rev_time <- max(sset[length(sset)], 0)
         discount <-
           base_inflation(next_rev_time * time_unit * 4) /
-          base_inflation(txn_t[i] * time_unit * 4)
+          base_inflation(txn_time[i] * time_unit * 4)
         y_left[i] <- y_right[i] * discount
 
         # need y >= k1_inv * c after the retrospective revision
@@ -164,11 +164,11 @@ individual_claim_history <- function(
       } else {
         # adjustment for base inflation
         # need the time of the "next" revision
-        sset <- txn_t[which(txn_type[1:(i - 1)] %in% c("Ma", "Mi", "PMa", "PMi"))]
+        sset <- txn_time[which(txn_type[1:(i - 1)] %in% c("Ma", "Mi", "PMa", "PMi"))]
         next_rev_time <- max(sset[length(sset)], 0)
         discount <-
           base_inflation(next_rev_time * time_unit * 4) /
-          base_inflation(txn_t[i] * time_unit * 4)
+          base_inflation(txn_time[i] * time_unit * 4)
         y_left[i] <- y_right[i] * discount
 
         # need y >= k2_inv * c after the retrospective revision
@@ -190,15 +190,15 @@ individual_claim_history <- function(
 
   if (keep_all == TRUE) {
     result <- list(
-      txn_time = txn_time, txn_t = txn_t, txn_type = txn_type,
+      txn_delay = txn_delay, txn_time = txn_time, txn_type = txn_type,
       paid_left = c_left, paid_right = c_right,
       OCL_left = x_left, OCL_right = x_right,
       incurred_left = y_left, incurred_right = y_right,
       miRev = miRev, maRev = maRev)
   } else {
     result <- list(
+      txn_delay = txn_delay,
       txn_time = txn_time,
-      txn_t = txn_t,
       txn_type = txn_type,
       paid_right = c_right,
       OCL_right = x_right,
@@ -281,9 +281,9 @@ individual_claim_history <- function(
 #' occurrence period *i*. The "unit list" (i.e. the smallest, innermost
 #' sub-list) contains the following components:
 #' \tabular{ll}{
-#' `txn_time` \tab Delays from notification to the transactions (payment or
+#' `txn_delay` \tab Delays from notification to the transactions (payment or
 #' incurred revision). \cr
-#' `txn_t` \tab Times of the transactions (from the commencement of the
+#' `txn_time` \tab Times of the transactions (from the commencement of the
 #' first occurrence period). \cr
 #' `txn_type` \tab Types of the transactions, "Ma" for major revision, "Mi" for
 #' minor revision, "P" for payment, "PMa" for major revision coincident with a
