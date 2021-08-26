@@ -10,7 +10,8 @@
 #' package, see \code{\link{test_incurred_dataset}}.
 #'
 #' @param claims an `claims` object containing all the simulated quantities,
-#' see \code{\link{claims}}.
+#' (other than those related to incurred loss), see
+#' \code{\link[SynthETIC]{claims}}.
 #' @param incurred_history the full history of incurred case estimates, see
 #' \code{\link{claim_history}}.
 #'
@@ -32,7 +33,7 @@ generate_incurred_dataset <- function(
     txn_type = unlist(lapply(unlist(incurred_history, recursive = F), `[[`, "txn_type")),
     incurred = unlist(lapply(unlist(incurred_history, recursive = F), `[[`, "incurred_right")),
     OCL = unlist(lapply(unlist(incurred_history, recursive = F), `[[`, "OCL_right")),
-    paid = unlist(lapply(unlist(incurred_history, recursive = F), `[[`, "paid_right"))
+    cumpaid = unlist(lapply(unlist(incurred_history, recursive = F), `[[`, "cumpaid_right"))
   )
 
   # Extract and append the multiplier information

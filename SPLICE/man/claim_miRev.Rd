@@ -198,5 +198,5 @@ minor_2 <- claim_miRev_time(test_claims_object, minor, my_miRev_time_function)
 # minor <- claim_miRev_size(test_claims_object, major, minor)
 }
 \seealso{
-\code{\link{claims}}
+\code{\link[SynthETIC]{claims}}
 }

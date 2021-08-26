@@ -191,7 +191,7 @@ individual_claim_history <- function(
   if (keep_all == TRUE) {
     result <- list(
       txn_delay = txn_delay, txn_time = txn_time, txn_type = txn_type,
-      paid_left = c_left, paid_right = c_right,
+      cumpaid_left = c_left, cumpaid_right = c_right,
       OCL_left = x_left, OCL_right = x_right,
       incurred_left = y_left, incurred_right = y_right,
       miRev = miRev, maRev = maRev)
@@ -200,7 +200,7 @@ individual_claim_history <- function(
       txn_delay = txn_delay,
       txn_time = txn_time,
       txn_type = txn_type,
-      paid_right = c_right,
+      cumpaid_right = c_right,
       OCL_right = x_right,
       incurred_right = y_right,
       miRev = miRev,
@@ -218,7 +218,8 @@ individual_claim_history <- function(
 #' a case estimate revision).
 #'
 #' @param claims an `claims` object containing all the simulated quantities
-#' (other than those related to incurred loss), see \code{\link{claims}}.
+#' (other than those related to incurred loss), see
+#' \code{\link[SynthETIC]{claims}}.
 #' @param maRev_list nested list of major revision histories, see
 #' \code{\link{claim_maRev}}.
 #' @param miRev_list nested list of minor revision histories, see
@@ -288,21 +289,21 @@ individual_claim_history <- function(
 #' `txn_type` \tab Types of the transactions, "Ma" for major revision, "Mi" for
 #' minor revision, "P" for payment, "PMa" for major revision coincident with a
 #' payment, "PMi" for minor revision coincident with a payment. \cr
-#' `paid_right` \tab Cumulative claim payments immediately after each of the
-#' transactions. \cr
+#' `cumpaid_right` \tab Cumulative claim payments immediately after each of the
+#' transactions (in the "right" continuous sense). \cr
 #' `OCL_right` \tab Case estimate of outstanding claim payments immediately
-#' after each of the transactions. \cr
+#' after each of the transactions (in the "right" continuous sense). \cr
 #' `incurred_right` \tab Case estimate of incurred loss immediately after each
-#' of the transactions. \cr
+#' of the transactions (in the "right" continuous sense). \cr
 #' `miRev` \tab A list containing full history of minor revisions (frequency,
-#' time and revision size). \cr
+#' time and revision size); \code{\link{claim_miRev}}. \cr
 #' `maRev` \tab A list containing full history of major revisions (frequency,
-#' time and revision size).
+#' time and revision size); see \code{\link{claim_maRev}}.
 #' }
 #'
 #' and optionally (by setting `keep_all = TRUE`),
 #' \tabular{ll}{
-#' `paid_left` \tab Cumulative claim payments just before each of the
+#' `cumpaid_left` \tab Cumulative claim payments just before each of the
 #' transactions. \cr
 #' `OCL_left` \tab Case estimate of outstanding claim payments just before each
 #' of the transactions. \cr

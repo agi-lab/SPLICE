@@ -17,7 +17,8 @@ claim_history(
 }
 \arguments{
 \item{claims}{an \code{claims} object containing all the simulated quantities
-(other than those related to incurred loss), see \code{\link{claims}}.}
+(other than those related to incurred loss), see
+\code{\link[SynthETIC]{claims}}.}
 
 \item{maRev_list}{nested list of major revision histories, see
 \code{\link{claim_maRev}}.}
@@ -57,21 +58,21 @@ first occurrence period). \cr
 \code{txn_type} \tab Types of the transactions, "Ma" for major revision, "Mi" for
 minor revision, "P" for payment, "PMa" for major revision coincident with a
 payment, "PMi" for minor revision coincident with a payment. \cr
-\code{paid_right} \tab Cumulative claim payments immediately after each of the
-transactions. \cr
+\code{cumpaid_right} \tab Cumulative claim payments immediately after each of the
+transactions (in the "right" continuous sense). \cr
 \code{OCL_right} \tab Case estimate of outstanding claim payments immediately
-after each of the transactions. \cr
+after each of the transactions (in the "right" continuous sense). \cr
 \code{incurred_right} \tab Case estimate of incurred loss immediately after each
-of the transactions. \cr
+of the transactions (in the "right" continuous sense). \cr
 \code{miRev} \tab A list containing full history of minor revisions (frequency,
-time and revision size). \cr
+time and revision size); \code{\link{claim_miRev}}. \cr
 \code{maRev} \tab A list containing full history of major revisions (frequency,
-time and revision size).
+time and revision size); see \code{\link{claim_maRev}}.
 }
 
 and optionally (by setting \code{keep_all = TRUE}),
 \tabular{ll}{
-\code{paid_left} \tab Cumulative claim payments just before each of the
+\code{cumpaid_left} \tab Cumulative claim payments just before each of the
 transactions. \cr
 \code{OCL_left} \tab Case estimate of outstanding claim payments just before each
 of the transactions. \cr

@@ -13,7 +13,8 @@
 #' payment (`miRev_NatP`).
 #'
 #' @param claims an `claims` object containing all the simulated quantities
-#' (other than those related to incurred loss), see `claims`.
+#' (other than those related to incurred loss), see
+#' \code{\link[SynthETIC]{claims}}.
 #' @param miRev_no_atP_function function of `no_pmt` (number of partial
 #' payments) that generates and returns the number of minor revisions that are
 #' simultaneous with a partial payment (see Details for the default function).
@@ -67,7 +68,7 @@
 #' `miRev_multiplier_NatP` \tab Minor revision multipliers of **outstanding claim
 #' payments** for revisions at any other times \[`claim_miRev_size()`\]. \cr
 #' }
-#' @seealso \code{\link{claims}}
+#' @seealso \code{\link[SynthETIC]{claims}}
 #' @export
 #' @name claim_miRev
 claim_miRev_no <- function(

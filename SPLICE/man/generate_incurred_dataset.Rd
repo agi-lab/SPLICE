@@ -8,7 +8,8 @@ generate_incurred_dataset(claims, incurred_history)
 }
 \arguments{
 \item{claims}{an \code{claims} object containing all the simulated quantities,
-see \code{\link{claims}}.}
+(other than those related to incurred loss), see
+\code{\link[SynthETIC]{claims}}.}
 
 \item{incurred_history}{the full history of incurred case estimates, see
 \code{\link{claim_history}}.}

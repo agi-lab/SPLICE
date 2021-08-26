@@ -19,10 +19,10 @@ revision, "Mi" for minor revision, "P" for payment,
 "PMa" for major revision coincident with a payment,
 "PMi" for minor revision coincident with a payment.}
 \item{incurred}{double; case estimate of total incurred loss immediately
-after the transaction.}
+\strong{after} the transaction.}
 \item{OCL}{double; case estimate of outstanding claim payments immediately
-after the transaction.}
-\item{paid}{double; cumulative claim paid after the transaction.}
+\strong{after} the transaction.}
+\item{cumpaid}{double; cumulative claim paid \strong{after} the transaction.}
 \item{multiplier}{revision multipliers (subject to further constraints
 documented in \code{\link{claim_history}}), \code{NA} for
 transactions that do not involve a revision.}
