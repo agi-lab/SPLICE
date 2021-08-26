@@ -347,13 +347,13 @@ Chain-Ladder Triangles
 `SynthETIC` also provides an option to produce the incurred triangles aggregated by accident and development periods:
 
 ```{r}
-square_inc <- incurred_output(result)
-square_cum <- incurred_output(result, incremental = F)
-square_inflated_inc <- incurred_output(result_inflated)
-square_inflated_cum <- incurred_output(result_inflated, incremental = F)
+square_inc <- output_incurred(result)
+square_cum <- output_incurred(result, incremental = F)
+square_inflated_inc <- output_incurred(result_inflated)
+square_inflated_cum <- output_incurred(result_inflated, incremental = F)
 
-yearly_inc <- incurred_output(result, aggregate_level = 4)
-yearly_cum <- incurred_output(result, aggregate_level = 4, incremental = F)
+yearly_inc <- output_incurred(result, aggregate_level = 4)
+yearly_cum <- output_incurred(result, aggregate_level = 4, incremental = F)
 yearly_cum
 
 # apply standard actuarial reserving techniques using the `ChainLadder` package

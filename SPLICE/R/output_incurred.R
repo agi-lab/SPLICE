@@ -72,7 +72,10 @@ generate_incurred_dataset <- function(
 #' Users can modify the aggregate level by providing an `aggregate_level`
 #' argument to the function. For example, setting `aggregate_level = 4` when
 #' working with calendar *quarters* produces an incurred square by occurrence
-#' and development *year*.
+#' and development *year*. \cr \cr
+#' We refer to the package vignette for examples on changing the aggregation
+#' granularity:
+#' \code{vignette("SPLICE-demo", package = "SPLICE")}
 #'
 #' @param incurred_history the full history of incurred case estimates, see
 #' \code{\link{claim_history}}.
@@ -80,52 +83,65 @@ generate_incurred_dataset <- function(
 #' a divisor of the total number of periods under consideration (default 1).
 #' @param incremental logical; if true returns the incremental incurred square,
 #' else returns the cumulative incurred square.
+#' @param future logical; if true (default) shows the full claim triangle (i.e.
+#' including claim payments in future periods), else shows only the past
+#' triangle.
 #' @return An array of claims incurred to date.
 #' @details
 #' **Remark on out-of-bound transaction times**: This function includes
 #' adjustment for out-of-bound transaction dates, by forcing any transactions
-#' made beyond the maximum development period to be counted as if at the end
-#' of the limiting development period. For example, if we consider 40
-#' periods of development and a claim of the 21st occurrence period was
-#' projected to have a major revision at time 62.498210, then we would treat
-#' such a revision as if it occurred at time 60 for the purpose of tabulation.
+#' that were projected to fall out of the maximum development period to be
+#' counted as if they were made at the end of the limiting development period.
+#' For example, if we consider 40 periods of development and a claim of the 21st
+#' occurrence period was projected to have a major revision at time 62.498210,
+#' then we would treat such a revision as if it occurred at time 60 for the
+#' purpose of tabulation.
 #' @export
-incurred_output <- function(
+output_incurred <- function(
   incurred_history,
   aggregate_level = 1,
-  incremental = TRUE) {
+  incremental = TRUE,
+  future = TRUE) {
 
   frequency_vector <-  lengths(incurred_history)
   I <- length(frequency_vector)
-  incurred_cumulative <- array(0, c(I, I))
+  side <- I / aggregate_level
+  incurred_cumulative <- array(0, c(side, side))
+  colnames(incurred_cumulative) <- paste0("DP", 1:side)
+  rownames(incurred_cumulative) <- paste0("AP", 1:side)
   adjustment <- 0 # track the number of corrections required for keeping all the
                   # transaction times within the bound
 
   for (i in 1:I) {
+    i_rescaled <- ceiling(i / aggregate_level)
+
     for (j in 1:frequency_vector[i]) {
+
       # convert to discrete time scale (t in terms of absolute time)
-      t <- ceiling(incurred_history[[i]][[j]]$txn_time)
+      t <- ceiling(incurred_history[[i]][[j]]$txn_time / aggregate_level)
       incurred_right <- incurred_history[[i]][[j]]$incurred_right
 
       # Firstly need to treat the out-of-bound transaction times
-      if (any(t - i + 1 > I)) {
-        t[which(t - i + 1 > I)] <- i + I - 1
+      if (any(t - i_rescaled + 1 > side)) {
+        t[which(t - i_rescaled + 1 > side)] <- i_rescaled + side - 1
         adjustment <- adjustment + 1
       }
+
       # Now get the latest incurred estimate in a period
-      incurred_latest <- rep(NA, i + I - 1)
+      incurred_latest <- rep(NA, i_rescaled + side - 1)
       # Fill the incurred estimates
       incurred_latest[unique(t)] <- incurred_right[!rev(duplicated(rev(t)))]
       # Fill the NAs prior to the first non-NA with 0
       # (i.e. assume no incurred until claim notified)
       firstNonNA <- min(which(!is.na(incurred_latest)))
-      if (firstNonNA > i) {
-        incurred_latest[i:(firstNonNA - 1)] <- 0
+      if (firstNonNA > i_rescaled) {
+        incurred_latest[i_rescaled:(firstNonNA - 1)] <- 0
       }
       # Fill the rest of NAs with the prior non-NAs
       incurred_latest <- zoo::na.locf(incurred_latest, na.rm = TRUE)
-      for (k in 1:I) {
-        incurred_cumulative[i, k] <- incurred_cumulative[i, k] + incurred_latest[k]
+      for (k in 1:side) {
+        incurred_cumulative[i_rescaled, k] <-
+          incurred_cumulative[i_rescaled, k] + incurred_latest[k]
       }
     }
   }
@@ -133,23 +149,8 @@ incurred_output <- function(
   no_txn <- lengths(lapply(unlist(incurred_history, recursive = F), `[[`, "txn_delay"))
   total_no_txn <- sum(no_txn)
   if (adjustment / total_no_txn > 0.03) {
-    warning("More than 3% of the transactions were outside the bound.")
-  }
-
-  if (aggregate_level != 1) {
-    # if aggregate at a higher level (e.g. aggregate_level = 4 for yearly triangles)
-    new_side_length <- I / aggregate_level
-    incurred_cumulative_orig <- incurred_cumulative
-    incurred_cumulative <- array(0, c(new_side_length, new_side_length))
-
-    for (i in 1:new_side_length) {
-      side_occurrence <- (aggregate_level * (i-1) + 1): (aggregate_level * i)
-      for (j in 1:new_side_length) {
-        side_development <- aggregate_level * j
-        incurred_cumulative[i, j] <- sum(
-          incurred_cumulative_orig[side_occurrence, side_development])
-      }
-    }
+    warning("More than 3% of the transactions were outside the bound.
+    Check your data generation assumptions!")
   }
 
   if (incremental == TRUE) {
@@ -160,8 +161,27 @@ incurred_output <- function(
         incurred_incremental[i, j] <- incurred_cumulative[i, j] - incurred_cumulative[i, j - 1]
       }
     }
-    incurred_incremental
+
+    if (future == TRUE) {
+      incurred_incremental
+    } else {
+      # only to show the past triangle
+      indicator <- apply(upper.tri(incurred_incremental[, 1:side], diag = TRUE), 1, rev)
+      incurred_incremental[!indicator] <- NA
+
+      incurred_incremental
+    }
+
   } else {
-    incurred_cumulative
+    if (future == TRUE) {
+      incurred_cumulative
+    } else {
+      # only to show the past triangle
+      indicator <- apply(upper.tri(incurred_cumulative[, 1:side], diag = TRUE), 1, rev)
+      incurred_cumulative[!indicator] <- NA
+
+      incurred_cumulative
+    }
   }
+
 }
