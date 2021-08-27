@@ -9,68 +9,82 @@
 \usage{
 claim_miRev_no(
   claims,
-  miRev_no_atP_function,
-  miRev_no_NatP_function,
+  prob_atP = 0.5,
+  rfun_NatP,
+  paramfun_NatP,
   frequency_vector = claims$frequency_vector,
   settlement_list = claims$settlement_list,
-  no_payments_list = claims$no_payments_list
+  no_payments_list = claims$no_payments_list,
+  ...
 )
 
 claim_miRev_time(
   claims,
   miRev_list,
-  miRev_time_NatP_function,
+  rfun_NatP,
+  paramfun_NatP,
   settlement_list = claims$settlement_list,
-  payment_delay_list = claims$payment_delay_list
+  payment_delay_list = claims$payment_delay_list,
+  ...
 )
 
 claim_miRev_size(
   claims,
   maRev_list,
   miRev_list,
-  miRev_size_function,
-  settlement_list = claims$settlement_list
+  rfun,
+  paramfun_atP,
+  paramfun_NatP,
+  settlement_list = claims$settlement_list,
+  ...
 )
 }
 \arguments{
 \item{claims}{an \code{claims} object containing all the simulated quantities
-(other than those related to incurred loss), see \code{claims}.}
+(other than those related to incurred loss), see
+\code{\link[SynthETIC]{claims}}.}
 
-\item{miRev_no_atP_function}{function of \code{no_pmt} (number of partial
-payments) that generates and returns the number of minor revisions that are
-simultaneous with a partial payment (see Details for the default function).}
+\item{prob_atP}{(optional) probability that a minor revision will occur at
+the time of a partial payment; default value 0.5.}
 
-\item{miRev_no_NatP_function}{function of \code{setldel} (settlement delay) that
-generates and returns the number of minor revisions that are not
-simultaneous with a partial payment (see Details for the default function).}
+\item{rfun_NatP}{optional alternative random sampling function for:
+\itemize{
+\item \code{claim_miRev_no}: the number of minor revisions that occur at an epoch
+other than those of partial payments;
+\item \code{claim_miRev_time}: the epochs of such minor revisions measured from claim
+notification;
+\item \code{claim_miRev_size}: the sizes of the minor revision multipliers (common for
+\verb{_atP} and \verb{_NatP}, hence simply termed \code{rfun} in this case).
+}
+
+See Details for default.}
+
+\item{paramfun_NatP}{parameters for the above random sampling function,
+as a function of other claim characteristics (e.g. \code{lambda} as a function of
+\code{claim_size} for an \code{rpois} simulation); see Examples.}
 
 \item{frequency_vector}{a vector of claim frequencies for all the periods
-(not required if the \code{claims} argument is provided).}
+(not required if the \code{claims} argument is provided); see
+\code{\link[SynthETIC]{claim_frequency}}.}
 
 \item{settlement_list}{list of settlement delays (not required if the
-\code{claims} argument is provided).}
+\code{claims} argument is provided); see \code{\link[SynthETIC]{claim_closure}}.}
 
 \item{no_payments_list}{list of number of partial payments (not required if
-the \code{claims} argument is provided).}
+the \code{claims} argument is provided); see
+\code{\link[SynthETIC]{claim_payment_no}}.}
+
+\item{...}{other arguments/parameters to be passed onto \code{paramfun}.}
 
 \item{miRev_list}{nested list of minor revision histories (with non-empty
 revision frequencies).}
 
-\item{miRev_time_NatP_function}{function of \code{miRev_no_NatP}, \code{setldel} that
-generates and returns the epochs of minor revisions that do not occur with a
-partial payment, measured from claim notification (see Details for the
-default function).}
-
 \item{payment_delay_list}{(compound) list of inter partial delays (not
-required if the \code{claims} argument is provided).}
+required if the \code{claims} argument is provided); see
+\code{\link[SynthETIC]{claim_payment_delay}}.}
 
 \item{maRev_list}{nested list of major revision histories (with non-empty
 revision frequencies).}
-
-\item{miRev_size_function}{function of \code{miRev_time} (vector, epochs of all
-minor revisions), \code{maRev_time_2nd} (time of the second major revision),
-\code{setldel} that generates and returns the sizes of the minor revision
-multipliers (see Details for the default function).}
 }
 \value{
 A nested list structure such that the \emph{j}th component of the \emph{i}th
@@ -103,26 +117,26 @@ the (1) frequency, (2) time, and (3) size of minor revisions of outstanding
 claim payments, for each of the claims occurring in each of the periods.
 
 We separate the case of minor revisions that occur simultaneously with a
-partial payment (\code{miRev_atP}), and the ones that do not coincide with a
-payment (\code{miRev_NatP}).
+partial payment (denoted \verb{_atP}), and the ones that do not coincide with a
+payment (denoted \verb{_NatP}).
 }
 \section{Details - \code{claim_miRev_no} (Frequency)}{
  Minor revisions may occur
 simultaneously with a partial payment, or at any other time.
 
 For the former case, we sample the occurrence of minor revisions as Bernoulli
-random variables with probability parameter \eqn{p = 1/2}.
+random variables with default probability parameter \eqn{p = 1/2}.
 
-For the latter case, we sample the number of (non payment simultaneous) minor
-revisions from a geometric distribution with mean =
+For the latter case, by default we sample the number of (non payment
+simultaneous) minor revisions from a geometric distribution with mean =
 \eqn{min(3, setldel / 4)}.
 
 One can modify the above sampling distributions by plugging in their own
-\code{miRev_no_atP_function} and \code{miRev_no_NatP_function}, where the former
-simulates the number of minor revisions at partial payments (and returns a
-vector of revision indicators), and the latter simulates and returns the
-number of minor revisions at any other points in time, with possible
-dependence on the settlement delay of the claim.
+\code{prob_atP} parameter and \code{rfun_NatP} function, where the former dictates
+the probability of incurring a minor revision at the time of a payment, and
+the latter simulates and returns the number of minor revisions at any other
+points in time, with possible dependence on the settlement delay of the claim
+and/or other claim characteristics.
 }
 
 \section{Details - \code{claim_miRev_time} (Time)}{
@@ -135,18 +149,20 @@ times are sampled from a uniform distribution with parameters \code{min} \eqn{=
 settlement_delay / 6} and \code{max} \eqn{= settlement_delay}.
 
 One can modify the above sampling distribution by plugging in their own
-\code{miRev_time_NatP_function}, which simulates and returns the times of minor
-revisions that do not coincide with a payment, with possible dependence on
-the settlement delay of the claim (see Examples).
+\code{rfun_NatP} and \code{paramfun_NatP} in \code{claim_miRev_time()}, which together
+simulate the epochs of minor revisions that do not coincide with a payment,
+with possible dependence on the settlement delay of the claim and/or other
+claim characteristics (see Examples).
 }
 
 \section{Details - \code{claim_miRev_size} (Revision Multiplier)}{
  The sampling
 distribution for minor revision multipliers is the same for both revisions
-that occur with and without a partial payment. We allow sampling dependence
-on the delay from notification to settlement (\code{setldel}), the delay from
-notification to the subject minor revisions (\code{miRev_time}), and the history
-of major revisions (in particular, the time of the second major revision).
+that occur with and without a partial payment. In the default setting, we
+incorporate sampling dependence on the delay from notification to settlement
+(\code{setldel}), the delay from notification to the subject minor revisions
+(\code{miRev_time}), and the history of major revisions (in particular, the time
+of the second major revision).
 
 Let \eqn{\tau} denote the delay from notification to the epoch of the minor
 revision, and \eqn{w} the settlement delay. Then
@@ -172,30 +188,31 @@ The revision multipliers are subject to further constraints to ensure that
 the revised incurred estimate never falls below what has already been paid.
 This is dicussed in \code{\link{claim_history}}.
 
-Unlike the major revision multipliers which apply to the incurred loss
-estimates, the minor revision multipliers apply to the case estimate of
-outstanding claim payments i.e. a revision multiplier of 2.54 means that at
-the time of the minor revision the outstanding claims payment increases by
-a factor of 2.54.
+\strong{Important note:} Unlike the major revision multipliers which apply to the
+\strong{incurred loss estimates}, the minor revision multipliers apply to the case
+estimate of \strong{outstanding claim payments} i.e. a revision multiplier of 2.54
+means that at the time of the minor revision the outstanding claims payment
+increases by a factor of 2.54.
 }
 
 \examples{
 set.seed(1)
-minor <- claim_miRev_no(test_claims_object)
+test_claims <- SynthETIC::test_claims_object
+minor <- claim_miRev_no(test_claims)
 minor[[1]][[1]] # the "unit list" for the first claim
 
 # update the timing information
-minor <- claim_miRev_time(test_claims_object, minor)
+minor <- claim_miRev_time(test_claims, minor)
 # observe how this has changed
 minor[[1]][[1]]
 # with an alternative sampling distribution e.g. triangular
-my_miRev_time_function <- function(miRev_no_NatP, setldel) {
-  sort(rtri(n = miRev_no_NatP, min = setldel/6, max = setldel, mode = setldel))
+miRev_time_NatP <- function(n, setldel) {
+  sort(rtri(n, min = setldel/6, max = setldel, mode = setldel))
 }
-minor_2 <- claim_miRev_time(test_claims_object, minor, my_miRev_time_function)
+minor_2 <- claim_miRev_time(test_claims, minor, miRev_time_NatP)
 
 # update the revision multipliers (need to generate "major" first)
-# minor <- claim_miRev_size(test_claims_object, major, minor)
+# minor <- claim_miRev_size(test_claims, major, minor)
 }
 \seealso{
 \code{\link[SynthETIC]{claims}}
