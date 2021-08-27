@@ -410,11 +410,12 @@ claim_maRev_time <- function(
 #'
 #' @examples
 #' set.seed(1)
-#' major <- claim_maRev_no(test_claims_object)
+#' test_claims <- SynthETIC::test_claims_object
+#' major <- claim_maRev_no(test_claims)
 #' major[[1]][[1]] # the "unit list" for the first claim
 #'
 #' # update the timing information
-#' major <- claim_maRev_time(test_claims_object, major)
+#' major <- claim_maRev_time(test_claims, major)
 #' # observe how this has changed
 #' major[[1]][[1]]
 #'
