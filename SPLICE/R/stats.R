@@ -32,10 +32,10 @@
 #' for \eqn{a \le c \le b}.
 #' @return `dtri` gives the density, `ptri` gives the distribution function,
 #' `qtri` gives the quantile function, and `rtri` generates random deviates.
-#' @name Triangular
+#' @name triangular
 NULL
 
-#' @rdname Triangular
+#' @rdname triangular
 #' @examples
 #' ptri(c(0, 1/2, 1), min = 0, max = 1, mode = 1/2)
 #' @export
@@ -52,7 +52,7 @@ ptri <- function(q, min, max, mode) {
 }
 ptri <- Vectorize(ptri)
 
-#' @rdname Triangular
+#' @rdname triangular
 #' @examples
 #' dtri(c(0, 1/2, 1), min = 0, max = 1, mode = 1/2)
 #' plot(function(x) dtri(x, min = 0, max = 1, mode = 1/2), 0, 1)
@@ -68,7 +68,7 @@ dtri <- function(x, min, max, mode) {
 }
 dtri <- Vectorize(dtri)
 
-#' @rdname Triangular
+#' @rdname triangular
 #' @export
 qtri <- function(p, min, max, mode) {
   if (p < 0 | p > 1) {
@@ -81,7 +81,7 @@ qtri <- function(p, min, max, mode) {
 }
 qtri <- Vectorize(qtri)
 
-#' @rdname Triangular
+#' @rdname triangular
 #' @export
 rtri <- function(n, min, max, mode) {
   if (n == 0) {
