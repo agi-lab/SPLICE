@@ -40,6 +40,34 @@ test_claims <- SynthETIC::test_claims_object
 ```
 and simulate the case estimates of incurred losses of the `r sum(test_claims$frequency_vector)` indidual claims included in the `claims` object above.
 
+0. Default Implementation
+---
+Sections 1-3 introduce the three modelling steps in detail and include extensive examples on how to replace the default implementation with sampling distributions deemed appropriate by the individual users of the program. For those who prefer to stick to the default assumptions, the following code is all that is required to generate the full incurred history:
+
+```{r}
+# major revisions
+major <- claim_maRev_no(test_claims)
+major <- claim_maRev_time(test_claims, major)
+major <- claim_maRev_size(major)
+
+# minor revisions
+minor <- claim_miRev_no(test_claims)
+minor <- claim_miRev_time(test_claims, minor)
+minor <- claim_miRev_size(test_claims, major, minor)
+
+# development of case estimates
+test <- claim_history(test_claims, major, minor)
+test_inflated <- claim_history(test_claims, major, minor, inflated = TRUE,
+                               base_inflation_vector = rep((1 + 0.02)^(1/4) - 1, times = 80))
+
+# transactional data
+test_incurred_dataset_noInf <- generate_incurred_dataset(test_claims, test)
+test_incurred_dataset_inflated <- generate_incurred_dataset(test_claims, test_inflated)
+
+# incurred cumulative triangles
+incurred_inflated <- output_incurred(test_inflated, incremental = FALSE)
+```
+
 1. Major Revisions {#maRev}
 ---
 This section introduces a suite of functions that works together to simulate, in sequential order, the (1) frequency, (2) time, and (3) size of major revisions of incurred loss, for each of the claims occurring in each of the occurrence periods.
