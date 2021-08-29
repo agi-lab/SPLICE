@@ -125,7 +125,7 @@ payment (denoted \verb{_NatP}).
 simultaneously with a partial payment, or at any other time.
 
 For the former case, we sample the occurrence of minor revisions as Bernoulli
-random variables with default probability parameter \eqn{p = 1/2}.
+random variables with default probability parameter \code{prob_atP} \eqn{= 1/2}.
 
 For the latter case, by default we sample the number of (non payment
 simultaneous) minor revisions from a geometric distribution with mean =
