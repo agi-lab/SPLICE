@@ -271,7 +271,7 @@ claim_miRev_time <- function(
 
   # do.call rfun, but ignore unused arguments
   args <- as.list(params_split)
-  keep_names <- c(intersect(names(args), names(formals(rfun))))
+  keep_names <- c(intersect(names(args), names(formals(rfun_NatP))))
   keep_formals <- c(args[keep_names])
 
   # turn keep_formals, which is a list of arguments, to a dataframe
