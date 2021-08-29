@@ -261,7 +261,7 @@ claim_maRev_time <- function(
     # we will see if we can continue without parameterisation
     # e.g. if the input rfun is directly a function of claim_size, and no
     # transformation is required
-    paramfun <- function(...) {
+    paramfun <- function(payment_delays, ...) {
       c(...)
     }
     # paramfun_filled indicates whether an "empty" paramfun is taken by default
