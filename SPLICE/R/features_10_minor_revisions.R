@@ -315,6 +315,11 @@ claim_miRev_time <- function(
 #' @rdname claim_miRev
 #' @param maRev_list nested list of major revision histories (with non-empty
 #' revision frequencies).
+#' @param rfun optional alternative random sampling function for the sizes of
+#' the minor revision multipliers (common for `_atP` and `_NatP`, hence simply
+#' termed `rfun` in this case).
+#' @param paramfun_atP parameters for `rfun` in `claim_miRev_size()` for minor
+#' revisions that occur at the time of a partial payment.
 #'
 #' @section Details - `claim_miRev_size` (Revision Multiplier): The sampling
 #' distribution for minor revision multipliers is the same for both revisions

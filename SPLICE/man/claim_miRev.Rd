@@ -85,6 +85,13 @@ required if the \code{claims} argument is provided); see
 
 \item{maRev_list}{nested list of major revision histories (with non-empty
 revision frequencies).}
+
+\item{rfun}{optional alternative random sampling function for the sizes of
+the minor revision multipliers (common for \verb{_atP} and \verb{_NatP}, hence simply
+termed \code{rfun} in this case).}
+
+\item{paramfun_atP}{parameters for \code{rfun} in \code{claim_miRev_size()} for minor
+revisions that occur at the time of a partial payment.}
 }
 \value{
 A nested list structure such that the \emph{j}th component of the \emph{i}th

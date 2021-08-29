@@ -28,7 +28,6 @@ Set Up
 ---
 ```{r setup}
 library(SPLICE)
-devtools::load_all()
 set.seed(20201006)
 ref_claim <- return_parameters()[1] # 200,000
 time_unit <- return_parameters()[2] # 0.25
