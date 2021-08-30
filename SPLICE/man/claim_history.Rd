@@ -32,8 +32,8 @@ total incurred estimate for major revisions; between 0 and 1.}
 \item{k2}{maximum amount of cumulative claims paid as a proportion of
 total incurred estimate for minor revisions; between 0 and 1.}
 
-\item{inflated}{`TRUE`` to include inflation adjustment (superimposed and
-base inflation up to the date of valuation), FALSE to work with constant
+\item{inflated}{\code{TRUE} to include inflation adjustment (superimposed and
+base inflation up to the date of valuation), \code{FALSE} to work with constant
 dollar values at \eqn{t = 0}.}
 
 \item{base_inflation_vector}{vector showing \strong{quarterly} base inflation
@@ -41,9 +41,9 @@ rates (quarterly effective) for all the periods under consideration (default
 is nil base inflation), should be consistent with the input inflation vector
 in \code{\link[SynthETIC]{claim_payment_inflation}}.}
 
-\item{keep_all}{TRUE to keep the paid, outstanding payments, total incurred
-estimates just before the revision, FALSE to keep only the estimates right
-after the revision (\verb{_right}).}
+\item{keep_all}{\code{TRUE} to keep the paid, outstanding payments, total
+incurred estimates just before the revision, \code{FALSE} to keep only the
+estimates right after the revision (\verb{_right}).}
 }
 \value{
 A nested list structure such that the \emph{j}th component of the \emph{i}th

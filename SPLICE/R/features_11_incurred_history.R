@@ -228,16 +228,16 @@ individual_claim_history <- function(
 #' total incurred estimate for major revisions; between 0 and 1.
 #' @param k2 maximum amount of cumulative claims paid as a proportion of
 #' total incurred estimate for minor revisions; between 0 and 1.
-#' @param inflated `TRUE`` to include inflation adjustment (superimposed and
-#' base inflation up to the date of valuation), FALSE to work with constant
+#' @param inflated ``TRUE`` to include inflation adjustment (superimposed and
+#' base inflation up to the date of valuation), ``FALSE`` to work with constant
 #' dollar values at \eqn{t = 0}.
 #' @param base_inflation_vector vector showing **quarterly** base inflation
 #' rates (quarterly effective) for all the periods under consideration (default
 #' is nil base inflation), should be consistent with the input inflation vector
 #' in \code{\link[SynthETIC]{claim_payment_inflation}}.
-#' @param keep_all TRUE to keep the paid, outstanding payments, total incurred
-#' estimates just before the revision, FALSE to keep only the estimates right
-#' after the revision (`_right`).
+#' @param keep_all ``TRUE`` to keep the paid, outstanding payments, total
+#' incurred estimates just before the revision, ``FALSE`` to keep only the
+#' estimates right after the revision (`_right`).
 #'
 #' @details This function works to generate the full history of claims paid and
 #' incurred estimates by consolidating all the simulated revision quantities.
