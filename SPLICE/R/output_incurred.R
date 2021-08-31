@@ -29,7 +29,7 @@ generate_incurred_dataset <- function(
     claim_no = rep(1:sum(claims$frequency_vector), times = no_txn),
     claim_size = rep(unlist(claims$claim_size_list), times = no_txn),
     txn_time = unlist(lapply(unlist(incurred_history, recursive = F), `[[`, "txn_time")),
-    txn_dalay = unlist(lapply(unlist(incurred_history, recursive = F), `[[`, "txn_delay")),
+    txn_delay = unlist(lapply(unlist(incurred_history, recursive = F), `[[`, "txn_delay")),
     txn_type = unlist(lapply(unlist(incurred_history, recursive = F), `[[`, "txn_type")),
     incurred = unlist(lapply(unlist(incurred_history, recursive = F), `[[`, "incurred_right")),
     OCL = unlist(lapply(unlist(incurred_history, recursive = F), `[[`, "OCL_right")),
