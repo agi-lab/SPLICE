@@ -10,8 +10,7 @@ claim_history(
   miRev_list,
   k1 = 0.95,
   k2 = 0.95,
-  inflated = FALSE,
-  base_inflation_vector,
+  base_inflation_vector = NULL,
   keep_all = FALSE
 )
 }
@@ -32,14 +31,11 @@ total incurred estimate for major revisions; between 0 and 1.}
 \item{k2}{maximum amount of cumulative claims paid as a proportion of
 total incurred estimate for minor revisions; between 0 and 1.}
 
-\item{inflated}{\code{TRUE} to include inflation adjustment (superimposed and
-base inflation up to the date of valuation), \code{FALSE} to work with constant
-dollar values at \eqn{t = 0}.}
-
 \item{base_inflation_vector}{vector showing \strong{quarterly} base inflation
 rates (quarterly effective) for all the periods under consideration (default
 is nil base inflation), should be consistent with the input inflation vector
-in \code{\link[SynthETIC]{claim_payment_inflation}}.}
+in \code{\link[SynthETIC]{claim_payment_inflation}}. If a single number is
+provided, the function will assume constant quarterly inflation.}
 
 \item{keep_all}{\code{TRUE} to keep the paid, outstanding payments, total
 incurred estimates just before the revision, \code{FALSE} to keep only the
@@ -109,20 +105,20 @@ claim payments will be increased to make sure this condition always holds,
 i.e. this adjustment takes precedence over the raw simulated revision
 multipliers.
 \item \strong{Inflation adjustment}: One can choose to ignore inflation in the
-incurred estimates (by setting \code{inflated = FALSE}), or to make allowance for
+incurred estimates (default), or to make allowance for
 it.
 \itemize{
-\item If \code{inflated = FALSE}, then all case estimates will be computed in values
-corresponding to time \eqn{t = 0}, i.e. the commencement of the first
-occurrence period.
-\item If \code{inflated = TRUE} and the \code{base_inflation_vector} is provided, then
-the case estimators will include full superimposed inflation and base
-inflation only up to the date of the revision, i.e. there is an adjustment
-for the time elapsed since the immediately preceding revision and \strong{no
-future base inflation} beyond the date of valuation.
+\item If \code{base_inflation_vector == NULL} (default), then all case estimates
+will be computed in values corresponding to time \eqn{t = 0}, i.e. the
+commencement of the first occurrence period.
+\item If \code{base_inflation_vector} is provided, then the case estimators will
+include full superimposed inflation and base inflation only up to the date
+of the revision, i.e. there is an adjustment for the time elapsed since the
+immediately preceding revision and \strong{no future base inflation} beyond the
+date of valuation.
 \item If inflation is involved, it should be noted that the case estimator
 reviews the base inflation situation only in the process of making a
-revision. When \emph{only} a payment is made, the insurer’s system automatically
+revision. When \emph{only} a payment is made, the insurer's system automatically
 writes down the outstanding liability on the assumption of no change in
 ultimate incurred amount.
 }

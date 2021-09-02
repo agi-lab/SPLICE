@@ -228,13 +228,11 @@ individual_claim_history <- function(
 #' total incurred estimate for major revisions; between 0 and 1.
 #' @param k2 maximum amount of cumulative claims paid as a proportion of
 #' total incurred estimate for minor revisions; between 0 and 1.
-#' @param inflated ``TRUE`` to include inflation adjustment (superimposed and
-#' base inflation up to the date of valuation), ``FALSE`` to work with constant
-#' dollar values at \eqn{t = 0}.
 #' @param base_inflation_vector vector showing **quarterly** base inflation
 #' rates (quarterly effective) for all the periods under consideration (default
 #' is nil base inflation), should be consistent with the input inflation vector
-#' in \code{\link[SynthETIC]{claim_payment_inflation}}.
+#' in \code{\link[SynthETIC]{claim_payment_inflation}}. If a single number is
+#' provided, the function will assume constant quarterly inflation.
 #' @param keep_all ``TRUE`` to keep the paid, outstanding payments, total
 #' incurred estimates just before the revision, ``FALSE`` to keep only the
 #' estimates right after the revision (`_right`).
@@ -261,19 +259,19 @@ individual_claim_history <- function(
 #' i.e. this adjustment takes precedence over the raw simulated revision
 #' multipliers.
 #' - **Inflation adjustment**: One can choose to ignore inflation in the
-#' incurred estimates (by setting `inflated = FALSE`), or to make allowance for
+#' incurred estimates (default), or to make allowance for
 #' it.
-#'   - If `inflated = FALSE`, then all case estimates will be computed in values
-#'   corresponding to time \eqn{t = 0}, i.e. the commencement of the first
-#'   occurrence period.
-#'   - If `inflated = TRUE` and the `base_inflation_vector` is provided, then
-#'   the case estimators will include full superimposed inflation and base
-#'   inflation only up to the date of the revision, i.e. there is an adjustment
-#'   for the time elapsed since the immediately preceding revision and **no
-#'   future base inflation** beyond the date of valuation.
+#'   - If `base_inflation_vector == NULL` (default), then all case estimates
+#'   will be computed in values corresponding to time \eqn{t = 0}, i.e. the
+#'   commencement of the first occurrence period.
+#'   - If `base_inflation_vector` is provided, then the case estimators will
+#'   include full superimposed inflation and base inflation only up to the date
+#'   of the revision, i.e. there is an adjustment for the time elapsed since the
+#'   immediately preceding revision and **no future base inflation** beyond the
+#'   date of valuation.
 #'   - If inflation is involved, it should be noted that the case estimator
 #'   reviews the base inflation situation only in the process of making a
-#'   revision. When *only* a payment is made, the insurer’s system automatically
+#'   revision. When *only* a payment is made, the insurer's system automatically
 #'   writes down the outstanding liability on the assumption of no change in
 #'   ultimate incurred amount.
 #'
@@ -316,8 +314,7 @@ claim_history <- function(
   maRev_list,
   miRev_list,
   k1 = 0.95, k2 = 0.95, # k1 for major revision, k2 for minor revision
-  inflated = FALSE,
-  base_inflation_vector,
+  base_inflation_vector = NULL,
   keep_all = FALSE
 ) {
 
@@ -328,8 +325,17 @@ claim_history <- function(
   max_quarters <- floor(I * time_unit * 4) * 2
 
   # set nil base inflation by default
-  if (inflated == FALSE | missing(base_inflation_vector)) {
+  if (is.null(base_inflation_vector)) {
     base_inflation_vector <- rep(0, times = max_quarters)
+    inflated <- FALSE
+  } else if (length(base_inflation_vector) == 1) {
+    base_inflation_vector <- rep(base_inflation_vector, times = max_quarters)
+    inflated <- TRUE
+  } else if (length(base_inflation_vector) != max_quarters) {
+    stop("base_inflation_vector is of a wrong size. Either input a single value
+    or a vector of appropriate length")
+  } else {
+    inflated <- TRUE
   }
 
   full_history <- vector("list", I)
