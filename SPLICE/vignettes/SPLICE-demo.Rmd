@@ -89,7 +89,7 @@ Name               Description
 
 
 ## 1.1 Frequency of Major Revisions {#maRev_no}
-`claim_maRev_no()` generates the number of major revisions associated with a particular claim, from a user-defined random generation function. Users are free to choose *any* distribution, whether it be a pre-defined distribution in `R`, or more advanced ones from packages, or a proper user-defined function, to better match their own claim experience.
+`claim_maRev_no()` generates the number of major revisions associated with a particular claim, from a user-defined random generation function. Users are free to choose *any* distribution (through the argument `rfun`), whether it be a pre-defined distribution in `R`, or more advanced ones from packages, or a proper user-defined function, to better match their own claim experience.
 
 Let $K$ represent the number of major revisions associated with a particular claim. The notification of a claim is considered as a major revision, so all claims have at least 1 major revision ($K \ge 1$).
 
@@ -558,24 +558,14 @@ dflt.miRev_size <- function(
     for (i in 1:k) {
       curr <- miRev_time[i]
       if (curr <= setldel/3) {
-        if (curr > maRev_time_2nd) {
-          miRev_multiplier[i] <- stats::rlnorm(n = 1, meanlog = 0.15, sdlog = 0.05)
-        } else {
-          miRev_multiplier[i] <- stats::rlnorm(n = 1, meanlog = 0.15, sdlog = 0.1)
-        }
+        meanlog <- 0.15
       } else if (curr <= (2/3) * setldel) {
-        if (curr > maRev_time_2nd) {
-          miRev_multiplier[i] <- stats::rlnorm(n = 1, meanlog = 0, sdlog = 0.05)
-        } else {
-          miRev_multiplier[i] <- stats::rlnorm(n = 1, meanlog = 0, sdlog = 0.1)
-        }
+        meanlog <- 0
       } else {
-        if (curr > maRev_time_2nd) {
-          miRev_multiplier[i] <- stats::rlnorm(n = 1, meanlog = -0.1, sdlog = 0.05)
-        } else {
-          miRev_multiplier[i] <- stats::rlnorm(n = 1, meanlog = -0.1, sdlog = 0.1)
-        }
+        meanlog <- -0.1
       }
+      sdlog <- ifelse(curr > maRev_time_2nd, 0.05, 0.1)
+      miRev_multiplier[i] <- stats::rlnorm(n = 1, meanlog, sdlog)
     }
   }
 
@@ -649,10 +639,12 @@ We can choose to exclude (default) or include adjustment for inflation:
 
 ### Implementation and Output
 ```{r}
+# exclude inflation (by default)
 result <- claim_history(test_claims, major, minor)
+# include inflation
 result_inflated <- claim_history(
   test_claims, major, minor, 
-  inflated = TRUE, base_inflation_vector = rep((1 + 0.02)^(1/4) - 1, times = 80))
+  base_inflation_vector = rep((1 + 0.02)^(1/4) - 1, times = 80))
 ```
 
 Observe how the results differ between the case estimates with/without inflation:
@@ -672,7 +664,7 @@ str(test_incurred_dataset_noInf)
 str(test_incurred_dataset_inflated)
 ```
 
-Chain-Ladder Incurred Triangles
+Output: Chain-Ladder Incurred Triangles
 ---
 `SPLICE` also provides an option to produce the incurred triangles aggregated by accident and development periods:
 

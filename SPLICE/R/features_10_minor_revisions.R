@@ -404,24 +404,14 @@ claim_miRev_size <- function(
         for (i in 1:k) {
           curr <- miRev_time[i]
           if (curr <= setldel/3) {
-            if (curr > maRev_time_2nd) {
-              miRev_multiplier[i] <- stats::rlnorm(n = 1, meanlog = 0.15, sdlog = 0.05)
-            } else {
-              miRev_multiplier[i] <- stats::rlnorm(n = 1, meanlog = 0.15, sdlog = 0.1)
-            }
+            meanlog <- 0.15
           } else if (curr <= (2/3) * setldel) {
-            if (curr > maRev_time_2nd) {
-              miRev_multiplier[i] <- stats::rlnorm(n = 1, meanlog = 0, sdlog = 0.05)
-            } else {
-              miRev_multiplier[i] <- stats::rlnorm(n = 1, meanlog = 0, sdlog = 0.1)
-            }
+            meanlog <- 0
           } else {
-            if (curr > maRev_time_2nd) {
-              miRev_multiplier[i] <- stats::rlnorm(n = 1, meanlog = -0.1, sdlog = 0.05)
-            } else {
-              miRev_multiplier[i] <- stats::rlnorm(n = 1, meanlog = -0.1, sdlog = 0.1)
-            }
+            meanlog <- -0.1
           }
+          sdlog <- ifelse(curr > maRev_time_2nd, 0.05, 0.1)
+          miRev_multiplier[i] <- stats::rlnorm(n = 1, meanlog, sdlog)
         }
       }
 
