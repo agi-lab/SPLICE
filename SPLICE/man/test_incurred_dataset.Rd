@@ -25,7 +25,10 @@ revision, "Mi" for minor revision, "P" for payment,
 \item{cumpaid}{double; cumulative claim paid \strong{after} the transaction.}
 \item{multiplier}{revision multipliers (subject to further constraints
 documented in \code{\link{claim_history}}), \code{NA} for
-transactions that do not involve a revision.}
+transactions that do not involve a revision. Note that
+major revision multipliers apply to the incurred losses,
+while minor revision multipliers apply to the outstanding
+claim payments.}
 }
 }
 \usage{

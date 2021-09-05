@@ -5,14 +5,14 @@
 ## v2 incurred program
 set.seed(20201006)
 test_claims <- SynthETIC::test_claims_object
-major <- claim_maRev_no(test_claims)
-major <- claim_maRev_time(test_claims, major)
-major <- claim_maRev_size(major)
+major <- claim_majRev_freq(test_claims)
+major <- claim_majRev_time(test_claims, major)
+major <- claim_majRev_size(major)
 
 # minor revisions
-minor <- claim_miRev_no(test_claims)
-minor <- claim_miRev_time(test_claims, minor)
-minor <- claim_miRev_size(test_claims, major, minor)
+minor <- claim_minRev_freq(test_claims)
+minor <- claim_minRev_time(test_claims, minor)
+minor <- claim_minRev_size(test_claims, major, minor)
 
 test <- claim_history(test_claims, major, minor)
 test_inflated <- claim_history(test_claims, major, minor,

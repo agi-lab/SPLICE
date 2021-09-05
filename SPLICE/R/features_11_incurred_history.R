@@ -5,7 +5,7 @@
 # Development of case estimates
 # Helper function (hidden from users)
 individual_claim_history <- function(
-  maRev, miRev,
+  majRev, minRev,
   claim_size, no_pmt, payment_delays, payment_sizes, occurrence, notidel,
   k1, k2, # k1_inv for major revision, k2_inv for minor revision
   inflated, base_inflation_vector,
@@ -34,39 +34,39 @@ individual_claim_history <- function(
   # rewrite the inter-partial delays as delays from notification
   Ptimes <- cumsum(payment_delays)
   # incurred revision indicator
-  rev_atP <- miRev$miRev_atP
+  rev_atP <- minRev$minRev_atP
   rev_atP <- ifelse(rev_atP == 1, "PMi", "P")
-  if (maRev$maRev_atP == 1) {
+  if (majRev$majRev_atP == 1) {
     rev_atP[no_pmt - 1] <- "PMa"
-    # if there is a simultaneous maRev and miRev at the second last payment
+    # if there is a simultaneous majRev and minRev at the second last payment
     # then discard the minor revision
-    if (miRev$miRev_atP[no_pmt - 1] == 1) {
-      no_miRev <- miRev$miRev_no_atP
-      if (miRev$miRev_atP[no_pmt] == 0) {
+    if (minRev$minRev_atP[no_pmt - 1] == 1) {
+      no_minRev <- minRev$minRev_freq_atP
+      if (minRev$minRev_atP[no_pmt] == 0) {
         # no minor revision at the last payment
-        miRev$miRev_time_atP <- miRev$miRev_time_atP[-no_miRev]
-        miRev$miRev_multiplier_atP <- miRev$miRev_multiplier_atP[-no_miRev]
+        minRev$minRev_time_atP <- minRev$minRev_time_atP[-no_minRev]
+        minRev$minRev_factor_atP <- minRev$minRev_factor_atP[-no_minRev]
       } else {
         # if there was a minor revision at the last payment too
-        miRev$miRev_time_atP <- miRev$miRev_time_atP[-(no_miRev - 1)]
-        miRev$miRev_multiplier_atP <- miRev$miRev_multiplier_atP[-(no_miRev - 1)]
+        minRev$minRev_time_atP <- minRev$minRev_time_atP[-(no_minRev - 1)]
+        minRev$minRev_factor_atP <- minRev$minRev_factor_atP[-(no_minRev - 1)]
       }
-      miRev$miRev_atP[no_pmt - 1] <- 0
-      miRev$miRev_no_atP <- miRev$miRev_no_atP - 1
+      minRev$minRev_atP[no_pmt - 1] <- 0
+      minRev$minRev_freq_atP <- minRev$minRev_freq_atP - 1
     }
   }
   # insert the revisions that do not occur at a payment
-  maRev_NatP <- maRev$maRev_time
-  if (maRev$maRev_atP == 1) {
-    maRev_NatP <- maRev_NatP[-maRev$maRev_no]
+  majRev_freqtatP <- majRev$majRev_time
+  if (majRev$majRev_atP == 1) {
+    majRev_freqtatP <- majRev_freqtatP[-majRev$majRev_freq]
   }
-  miRev_NatP <- miRev$miRev_time_NatP
-  txn_delay <- sort(c(Ptimes, maRev_NatP, miRev_NatP))
+  minRev_freqtatP <- minRev$minRev_time_notatP
+  txn_delay <- sort(c(Ptimes, majRev_freqtatP, minRev_freqtatP))
   txn_time <- txn_delay + occurrence + notidel # in absolute time
   txn_type <- rep(NA, length(txn_delay))
   txn_type[txn_delay %in% Ptimes] <- rev_atP
-  txn_type[txn_delay %in% maRev_NatP] <- "Ma"
-  txn_type[txn_delay %in% miRev_NatP] <- "Mi"
+  txn_type[txn_delay %in% majRev_freqtatP] <- "Ma"
+  txn_type[txn_delay %in% minRev_freqtatP] <- "Mi"
   stopifnot(txn_type %in% c("P", "PMi", "PMa", "Mi", "Ma"))
 
   # need cumulative claims paid, outstanding claims liability and incurred
@@ -75,12 +75,12 @@ individual_claim_history <- function(
   no_txn <- length(txn_delay)
   c_left <- x_left <- y_left <- c_right <- x_right <- y_right <- rep(NA, no_txn)
   p_index <- no_pmt
-  Ma_index <- maRev$maRev_no
-  Mi_index_atP <- miRev$miRev_no_atP
-  Mi_index_NatP <- miRev$miRev_no_NatP
-  Ma_multp <- maRev$maRev_multiplier
-  Mi_multp_atP <- miRev$miRev_multiplier_atP
-  Mi_multp_NatP <- miRev$miRev_multiplier_NatP
+  Ma_index <- majRev$majRev_freq
+  Mi_index_atP <- minRev$minRev_freq_atP
+  Mi_index_notatP <- minRev$minRev_freq_notatP
+  Ma_multp <- majRev$majRev_factor
+  Mi_multp_atP <- minRev$minRev_factor_atP
+  Mi_multp_notatP <- minRev$minRev_factor_notatP
 
   # inherit time unit from SynthETIC
   time_unit <- SynthETIC::return_parameters()[2]
@@ -173,17 +173,17 @@ individual_claim_history <- function(
 
         # need y >= k2_inv * c after the retrospective revision
         k2_inv <- 1 / k2
-        x_left[i] <- (y_left[i] - c_left[i]) / Mi_multp_NatP[Mi_index_NatP]
+        x_left[i] <- (y_left[i] - c_left[i]) / Mi_multp_notatP[Mi_index_notatP]
         y_left[i] <- x_left[i] + c_left[i]
 
         y_right[i - 1] <- y_left[i] <- max(y_left[i], k2_inv * c_left[i])
         x_right[i - 1] <- x_left[i] <- y_left[i] - c_left[i]
-        Mi_index_NatP <- Mi_index_NatP - 1
+        Mi_index_notatP <- Mi_index_notatP - 1
       }
     }
   }
 
-  stopifnot(Ma_index == 1 && Mi_index_atP == 0 && Mi_index_NatP == 0 && p_index == 0)
+  stopifnot(Ma_index == 1 && Mi_index_atP == 0 && Mi_index_notatP == 0 && p_index == 0)
   y_left[1] <- y_right[1]
   x_left[1] <- x_right[1]
   c_left[1] <- c_right[1] <- 0 # claim paid at notification should be zero
@@ -194,7 +194,7 @@ individual_claim_history <- function(
       cumpaid_left = c_left, cumpaid_right = c_right,
       OCL_left = x_left, OCL_right = x_right,
       incurred_left = y_left, incurred_right = y_right,
-      miRev = miRev, maRev = maRev)
+      minRev = minRev, majRev = majRev)
   } else {
     result <- list(
       txn_delay = txn_delay,
@@ -203,8 +203,8 @@ individual_claim_history <- function(
       cumpaid_right = c_right,
       OCL_right = x_right,
       incurred_right = y_right,
-      miRev = miRev,
-      maRev = maRev)
+      minRev = minRev,
+      majRev = majRev)
   }
 
   return(result)
@@ -220,10 +220,10 @@ individual_claim_history <- function(
 #' @param claims an `claims` object containing all the simulated quantities
 #' (other than those related to incurred loss), see
 #' \code{\link[SynthETIC]{claims}}.
-#' @param maRev_list nested list of major revision histories, see
-#' \code{\link{claim_maRev}}.
-#' @param miRev_list nested list of minor revision histories, see
-#' \code{\link{claim_miRev}}.
+#' @param majRev_list nested list of major revision histories, see
+#' \code{\link{claim_majRev}}.
+#' @param minRev_list nested list of minor revision histories, see
+#' \code{\link{claim_minRev}}.
 #' @param k1 maximum amount of cumulative claims paid as a proportion of
 #' total incurred estimate for major revisions; between 0 and 1.
 #' @param k2 maximum amount of cumulative claims paid as a proportion of
@@ -244,7 +244,7 @@ individual_claim_history <- function(
 #' - Major and minor revisions should not occur simultaneously. In the event
 #' that they do (which is only possible at the second last partial payment),
 #' the major revision takes precedence, and the minor revision be discarded.
-#' This will be reflected in the `maRev` and `miRev` components of the output
+#' This will be reflected in the `majRev` and `minRev` components of the output
 #' list.
 #' - Estimates of incurred loss are specified to be computed in reverse order,
 #' and it is necessary that the total incurred estimate is always strictly
@@ -293,10 +293,10 @@ individual_claim_history <- function(
 #' after each of the transactions (in the "right" continuous sense). \cr
 #' `incurred_right` \tab Case estimate of incurred loss immediately after each
 #' of the transactions (in the "right" continuous sense). \cr
-#' `miRev` \tab A list containing full history of minor revisions (frequency,
-#' time and revision size); \code{\link{claim_miRev}}. \cr
-#' `maRev` \tab A list containing full history of major revisions (frequency,
-#' time and revision size); see \code{\link{claim_maRev}}.
+#' `minRev` \tab A list containing full history of minor revisions (frequency,
+#' time and revision size); \code{\link{claim_minRev}}. \cr
+#' `majRev` \tab A list containing full history of major revisions (frequency,
+#' time and revision size); see \code{\link{claim_majRev}}.
 #' }
 #'
 #' and optionally (by setting `keep_all = TRUE`),
@@ -311,8 +311,8 @@ individual_claim_history <- function(
 #' @export
 claim_history <- function(
   claims,
-  maRev_list,
-  miRev_list,
+  majRev_list,
+  minRev_list,
   k1 = 0.95, k2 = 0.95, # k1 for major revision, k2 for minor revision
   base_inflation_vector = NULL,
   keep_all = FALSE
@@ -349,8 +349,8 @@ claim_history <- function(
       }
 
       full_history[[i]][[j]] <- individual_claim_history(
-        maRev = maRev_list[[i]][[j]],
-        miRev = miRev_list[[i]][[j]],
+        majRev = majRev_list[[i]][[j]],
+        minRev = minRev_list[[i]][[j]],
         claim_size = claims$claim_size[[i]][j],
         no_pmt = claims$no_payments_list[[i]][j],
         payment_delays = claims$payment_delay_list[[i]][[j]],

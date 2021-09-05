@@ -28,7 +28,10 @@
 #'   \item{cumpaid}{double; cumulative claim paid **after** the transaction.}
 #'   \item{multiplier}{revision multipliers (subject to further constraints
 #'                     documented in \code{\link{claim_history}}), `NA` for
-#'                     transactions that do not involve a revision.}
+#'                     transactions that do not involve a revision. Note that
+#'                     major revision multipliers apply to the incurred losses,
+#'                     while minor revision multipliers apply to the outstanding
+#'                     claim payments.}
 #' }
 #' @seealso \code{\link{generate_incurred_dataset}}
 #' @name test_incurred_dataset

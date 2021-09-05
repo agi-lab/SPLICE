@@ -10,23 +10,23 @@
 #'
 #' We separate the case of minor revisions that occur simultaneously with a
 #' partial payment (denoted `_atP`), and the ones that do not coincide with a
-#' payment (denoted `_NatP`).
+#' payment (denoted `_notatP`).
 #'
 #' @param claims an `claims` object containing all the simulated quantities
 #' (other than those related to incurred loss), see
 #' \code{\link[SynthETIC]{claims}}.
 #' @param prob_atP (optional) probability that a minor revision will occur at
 #' the time of a partial payment; default value 0.5.
-#' @param rfun_NatP optional alternative random sampling function for:
-#' * `claim_miRev_no`: the number of minor revisions that occur at an epoch
+#' @param rfun_notatP optional alternative random sampling function for:
+#' * `claim_minRev_freq`: the number of minor revisions that occur at an epoch
 #' other than those of partial payments;
-#' * `claim_miRev_time`: the epochs of such minor revisions measured from claim
+#' * `claim_minRev_time`: the epochs of such minor revisions measured from claim
 #' notification;
-#' * `claim_miRev_size`: the sizes of the minor revision multipliers (common for
-#' `_atP` and `_NatP`, hence simply termed `rfun` in this case).
+#' * `claim_minRev_size`: the sizes of the minor revision multipliers (common for
+#' `_atP` and `_notatP`, hence simply termed `rfun` in this case).
 #'
 #' See Details for default.
-#' @param paramfun_NatP parameters for the above random sampling function,
+#' @param paramfun_notatP parameters for the above random sampling function,
 #' as a function of other claim characteristics (e.g. `lambda` as a function of
 #' `claim_size` for an `rpois` simulation); see Examples.
 #' @param frequency_vector a vector of claim frequencies for all the periods
@@ -39,7 +39,7 @@
 #' \code{\link[SynthETIC]{claim_payment_no}}.
 #' @param ... other arguments/parameters to be passed onto \code{paramfun}.
 #'
-#' @section Details - `claim_miRev_no` (Frequency): Minor revisions may occur
+#' @section Details - `claim_minRev_freq` (Frequency): Minor revisions may occur
 #' simultaneously with a partial payment, or at any other time.
 #'
 #' For the former case, we sample the occurrence of minor revisions as Bernoulli
@@ -50,7 +50,7 @@
 #' \eqn{min(3, setldel / 4)}.
 #'
 #' One can modify the above sampling distributions by plugging in their own
-#' `prob_atP` parameter and `rfun_NatP` function, where the former dictates
+#' `prob_atP` parameter and `rfun_notatP` function, where the former dictates
 #' the probability of incurring a minor revision at the time of a payment, and
 #' the latter simulates and returns the number of minor revisions at any other
 #' points in time, with possible dependence on the settlement delay of the claim
@@ -61,41 +61,41 @@
 #' occurrence period *i*. The "unit list" (i.e. the smallest, innermost
 #' sub-list) contains the following components:
 #' \tabular{ll}{
-#' `miRev_atP` \tab A vector of indicators showing whether there is a minor
-#' revision at each partial payment \[`claim_miRev_no()`\]. \cr
-#' `miRev_no_atP` \tab Number of minor revisions that occur simultaneously with
-#' a partial payment, numerically equals to the sum of `miRev_atP`
-#' \[`claim_miRev_no()`\]. \cr
-#' `miRev_no_NatP` \tab Number of minor revisions that do not occur with a
-#' partial payment \[`claim_miRev_no()`\]. \cr
-#' `miRev_time_atP` \tab Time of minor revisions that occur simultaneously with
+#' `minRev_atP` \tab A vector of indicators showing whether there is a minor
+#' revision at each partial payment \[`claim_minRev_freq()`\]. \cr
+#' `minRev_freq_atP` \tab Number of minor revisions that occur simultaneously with
+#' a partial payment, numerically equals to the sum of `minRev_atP`
+#' \[`claim_minRev_freq()`\]. \cr
+#' `minRev_freq_notatP` \tab Number of minor revisions that do not occur with a
+#' partial payment \[`claim_minRev_freq()`\]. \cr
+#' `minRev_time_atP` \tab Time of minor revisions that occur simultaneously with
 #' a partial payment (time measured from claim notification)
-#' \[`claim_miRev_time()`\]. \cr
-#' `miRev_time_NatP` \tab Time of minor revisions that do *not* occur
+#' \[`claim_minRev_time()`\]. \cr
+#' `minRev_time_notatP` \tab Time of minor revisions that do *not* occur
 #' simultaneously with a partial payment (time measured from claim notification)
-#' \[`claim_miRev_time()`\]. \cr
-#' `miRev_multiplier_atP` \tab Minor revision multipliers of **outstanding claim
-#' payments** for revisions at partial payments \[`claim_miRev_size()`\]. \cr
-#' `miRev_multiplier_NatP` \tab Minor revision multipliers of **outstanding claim
-#' payments** for revisions at any other times \[`claim_miRev_size()`\]. \cr
+#' \[`claim_minRev_time()`\]. \cr
+#' `minRev_factor_atP` \tab Minor revision multipliers of **outstanding claim
+#' payments** for revisions at partial payments \[`claim_minRev_size()`\]. \cr
+#' `minRev_factor_notatP` \tab Minor revision multipliers of **outstanding claim
+#' payments** for revisions at any other times \[`claim_minRev_size()`\]. \cr
 #' }
 #' @seealso \code{\link[SynthETIC]{claims}}
 #' @export
-#' @name claim_miRev
-claim_miRev_no <- function(
+#' @name claim_minRev
+claim_minRev_freq <- function(
   claims,
   prob_atP = 0.5, # probability of coinciding with a partial payment
-  rfun_NatP,      # miRev_no_NatP_function
-  paramfun_NatP,  # paramfun for miRev_no_NatP (not at payment)
+  rfun_notatP,      # minRev_freq_notatP_function
+  paramfun_notatP,  # paramfun for minRev_freq_notatP (not at payment)
   frequency_vector = claims$frequency_vector,
   settlement_list = claims$settlement_list,
   no_payments_list = claims$no_payments_list,
   ...
 ) {
 
-  if (!missing(rfun_NatP) & missing(paramfun_NatP)) {
+  if (!missing(rfun_notatP) & missing(paramfun_notatP)) {
     # we will see if we can continue without parameterisation
-    paramfun_NatP <- function(...) {
+    paramfun_notatP <- function(...) {
       c(...)
     }
     # paramfun_filled indicates whether an "empty" paramfun is taken by default
@@ -119,8 +119,8 @@ claim_miRev_no <- function(
 
   # default function to simulate the number of minor revisions
   # ... that are not simultaneous with partial payment
-  if (missing(rfun_NatP)) {
-    rfun_NatP <- function(n, setldel) {
+  if (missing(rfun_notatP)) {
+    rfun_notatP <- function(n, setldel) {
       # n = number of observations/claims
       k2 <- stats::rgeom(n, prob = 1 / (min(3, setldel/4) + 1))
       k2
@@ -128,22 +128,22 @@ claim_miRev_no <- function(
 
     # the default rfun directly takes setldel as an input, so the "empty"
     # paramfun would do the trick
-    paramfun_NatP <- function(...) {
+    paramfun_notatP <- function(...) {
       c(...)
     }
   }
 
   I <- length(frequency_vector)
-  miRev <- vector("list", I)
-  # miRev_unit stores all minor revision information on a single claim
-  miRev_unit <- list(
-    miRev_atP = NA,
-    miRev_no_atP = NA, miRev_no_NatP = NA,
-    miRev_time_atP = NA, miRev_time_NatP = NA,
-    miRev_multiplier_atP = NA, miRev_multiplier_NatP = NA
+  minRev <- vector("list", I)
+  # minRev_unit stores all minor revision information on a single claim
+  minRev_unit <- list(
+    minRev_atP = NA,
+    minRev_freq_atP = NA, minRev_freq_notatP = NA,
+    minRev_time_atP = NA, minRev_time_notatP = NA,
+    minRev_factor_atP = NA, minRev_factor_notatP = NA
   )
   # set up the simulation parameters
-  params <- mapply(paramfun_NatP,
+  params <- mapply(paramfun_notatP,
                    setldel = unlist(settlement_list, use.names = FALSE),
                    ...)
   # convert to function arguments
@@ -156,9 +156,9 @@ claim_miRev_no <- function(
     params_split <- params
   }
 
-  # do.call rfun_NatP, but ignore unused arguments
+  # do.call rfun_notatP, but ignore unused arguments
   args <- as.list(params_split)
-  keep_names <- c(intersect(names(args), names(formals(rfun_NatP))))
+  keep_names <- c(intersect(names(args), names(formals(rfun_notatP))))
   keep_formals <- c(args[keep_names])
 
   # turn keep_formals, which is a list of arguments, to a dataframe
@@ -168,42 +168,42 @@ claim_miRev_no <- function(
 
   curr <- 1
   for (i in 1:I) {
-    miRev[[i]] <- vector("list", frequency_vector[i])
+    minRev[[i]] <- vector("list", frequency_vector[i])
     for (j in 1:frequency_vector[i]) {
-      miRev[[i]][[j]] <- miRev_unit
+      minRev[[i]][[j]] <- minRev_unit
 
-      # miRev simultaneous with a payment
-      miRev[[i]][[j]]$miRev_atP <- rfun_atP(
+      # minRev simultaneous with a payment
+      minRev[[i]][[j]]$minRev_atP <- rfun_atP(
         n = no_payments_list[[i]][j], prob = prob_atP)
-      miRev[[i]][[j]]$miRev_no_atP <- sum(miRev[[i]][[j]]$miRev_atP)
+      minRev[[i]][[j]]$minRev_freq_atP <- sum(minRev[[i]][[j]]$minRev_atP)
 
-      # miRev non-simultaneous with a payment
+      # minRev non-simultaneous with a payment
       if (paramfun_filled) {
-        tt <- try(miRev[[i]][[j]]$miRev_no_NatP <- do.call(
-          rfun_NatP, c(as.list(args_df[, curr]), n = 1)))
+        tt <- try(minRev[[i]][[j]]$minRev_freq_notatP <- do.call(
+          rfun_notatP, c(as.list(args_df[, curr]), n = 1)))
         if (methods::is(tt, "try-error")) {
-          stop("need to specify 'paramfun_NatP' for the sampling distribution")
+          stop("need to specify 'paramfun_notatP' for the sampling distribution")
         }
       } else {
-        miRev[[i]][[j]]$miRev_no_NatP <- do.call(
-          rfun_NatP, c(as.list(args_df[, curr]), n = 1))
+        minRev[[i]][[j]]$minRev_freq_notatP <- do.call(
+          rfun_notatP, c(as.list(args_df[, curr]), n = 1))
       }
 
       curr <- curr + 1
     }
   }
 
-  miRev
+  minRev
 }
 
-#' @rdname claim_miRev
-#' @param miRev_list nested list of minor revision histories (with non-empty
+#' @rdname claim_minRev
+#' @param minRev_list nested list of minor revision histories (with non-empty
 #' revision frequencies).
 #' @param payment_delay_list (compound) list of inter partial delays (not
 #' required if the `claims` argument is provided); see
 #' \code{\link[SynthETIC]{claim_payment_delay}}.
 #'
-#' @section Details - `claim_miRev_time` (Time): For minor revisions that occur
+#' @section Details - `claim_minRev_time` (Time): For minor revisions that occur
 #' simultaneously with a partial payment, the revision times simply coincide
 #' with the epochs of the relevant partial payments.
 #'
@@ -212,25 +212,25 @@ claim_miRev_no <- function(
 #' settlement_delay / 6} and `max` \eqn{= settlement_delay}.
 #'
 #' One can modify the above sampling distribution by plugging in their own
-#' `rfun_NatP` and `paramfun_NatP` in `claim_miRev_time()`, which together
+#' `rfun_notatP` and `paramfun_notatP` in `claim_minRev_time()`, which together
 #' simulate the epochs of minor revisions that do not coincide with a payment,
 #' with possible dependence on the settlement delay of the claim and/or other
 #' claim characteristics (see Examples).
 #'
 #' @export
-claim_miRev_time <- function(
+claim_minRev_time <- function(
   claims,
-  miRev_list,
-  rfun_NatP,
-  paramfun_NatP,
+  minRev_list,
+  rfun_notatP,
+  paramfun_notatP,
   settlement_list = claims$settlement_list,
   payment_delay_list = claims$payment_delay_list,
   ...
 ) {
 
-  if (!missing(rfun_NatP) & missing(paramfun_NatP)) {
+  if (!missing(rfun_notatP) & missing(paramfun_notatP)) {
     # we will see if we can continue without parameterisation
-    paramfun_NatP <- function(...) {
+    paramfun_notatP <- function(...) {
       c(...)
     }
     # paramfun_filled indicates whether an "empty" paramfun is taken by default
@@ -241,22 +241,22 @@ claim_miRev_time <- function(
 
   # default function to simulate the timing of minor revisions (from notification)
   # for revisions non-simultaneous with payments
-  if (missing(rfun_NatP)) {
-    rfun_NatP <- function(n, setldel) {
+  if (missing(rfun_notatP)) {
+    rfun_notatP <- function(n, setldel) {
       # n = number of minor revisions non-simultaneous with payments
       sort(stats::runif(n, min = setldel/6, max = setldel))
     }
 
     # the default rfun directly takes setldel as an input, so the "empty"
     # paramfun would do the trick
-    paramfun_NatP <- function(...) {
+    paramfun_notatP <- function(...) {
       c(...)
     }
   }
 
-  I <- length(miRev_list)
+  I <- length(minRev_list)
   params <- mapply(
-    paramfun_NatP,
+    paramfun_notatP,
     setldel = unlist(settlement_list, use.names = FALSE),
     ...)
 
@@ -271,7 +271,7 @@ claim_miRev_time <- function(
 
   # do.call rfun, but ignore unused arguments
   args <- as.list(params_split)
-  keep_names <- c(intersect(names(args), names(formals(rfun_NatP))))
+  keep_names <- c(intersect(names(args), names(formals(rfun_notatP))))
   keep_formals <- c(args[keep_names])
 
   # turn keep_formals, which is a list of arguments, to a dataframe
@@ -281,52 +281,52 @@ claim_miRev_time <- function(
 
   curr <- 1
   for (i in 1:I) {
-    for (j in 1 : length(miRev_list[[i]])) {
+    for (j in 1 : length(minRev_list[[i]])) {
 
-      k1 <- miRev_list[[i]][[j]]$miRev_no_atP
-      k2 <- miRev_list[[i]][[j]]$miRev_no_NatP
+      k1 <- minRev_list[[i]][[j]]$minRev_freq_atP
+      k2 <- minRev_list[[i]][[j]]$minRev_freq_notatP
       k <- k1 + k2
-      rev_atP <- miRev_list[[i]][[j]]$miRev_atP
+      rev_atP <- minRev_list[[i]][[j]]$minRev_atP
       payment_delays <- payment_delay_list[[i]][[j]]
 
       # revisions that coincide with the payments
-      miRev_list[[i]][[j]]$miRev_time_atP <-
+      minRev_list[[i]][[j]]$minRev_time_atP <-
         cumsum(payment_delays)[as.logical(rev_atP)]
       # revisions that occur non-simultaneously with a payment
       if (paramfun_filled) {
-        tt <- try(miRev_list[[i]][[j]]$miRev_time_NatP <- do.call(
-          rfun_NatP, c(as.list(args_df[, curr]), n = k2)))
+        tt <- try(minRev_list[[i]][[j]]$minRev_time_notatP <- do.call(
+          rfun_notatP, c(as.list(args_df[, curr]), n = k2)))
         if (methods::is(tt, "try-error")) {
-          stop("need to specify 'paramfun_NatP' for the sampling distribution")
+          stop("need to specify 'paramfun_notatP' for the sampling distribution")
         }
       } else {
-        miRev_list[[i]][[j]]$miRev_time_NatP <- do.call(
-          rfun_NatP, c(as.list(args_df[, curr]), n = k2))
+        minRev_list[[i]][[j]]$minRev_time_notatP <- do.call(
+          rfun_notatP, c(as.list(args_df[, curr]), n = k2))
       }
 
       curr <- curr + 1
     }
   }
 
-  miRev_list
+  minRev_list
 }
 
 
-#' @rdname claim_miRev
-#' @param maRev_list nested list of major revision histories (with non-empty
+#' @rdname claim_minRev
+#' @param majRev_list nested list of major revision histories (with non-empty
 #' revision frequencies).
 #' @param rfun optional alternative random sampling function for the sizes of
-#' the minor revision multipliers (common for `_atP` and `_NatP`, hence simply
+#' the minor revision multipliers (common for `_atP` and `_notatP`, hence simply
 #' termed `rfun` in this case).
-#' @param paramfun_atP parameters for `rfun` in `claim_miRev_size()` for minor
+#' @param paramfun_atP parameters for `rfun` in `claim_minRev_size()` for minor
 #' revisions that occur at the time of a partial payment.
 #'
-#' @section Details - `claim_miRev_size` (Revision Multiplier): The sampling
+#' @section Details - `claim_minRev_size` (Revision Multiplier): The sampling
 #' distribution for minor revision multipliers is the same for both revisions
 #' that occur with and without a partial payment. In the default setting, we
 #' incorporate sampling dependence on the delay from notification to settlement
 #' (`setldel`), the delay from notification to the subject minor revisions
-#' (`miRev_time`), and the history of major revisions (in particular, the time
+#' (`minRev_time`), and the history of major revisions (in particular, the time
 #' of the second major revision).
 #'
 #' Let \eqn{\tau} denote the delay from notification to the epoch of the minor
@@ -360,49 +360,49 @@ claim_miRev_time <- function(
 #' @examples
 #' set.seed(1)
 #' test_claims <- SynthETIC::test_claims_object
-#' minor <- claim_miRev_no(test_claims)
+#' minor <- claim_minRev_freq(test_claims)
 #' minor[[1]][[1]] # the "unit list" for the first claim
 #'
 #' # update the timing information
-#' minor <- claim_miRev_time(test_claims, minor)
+#' minor <- claim_minRev_time(test_claims, minor)
 #' # observe how this has changed
 #' minor[[1]][[1]]
 #' # with an alternative sampling distribution e.g. triangular
-#' miRev_time_NatP <- function(n, setldel) {
+#' minRev_time_notatP <- function(n, setldel) {
 #'   sort(rtri(n, min = setldel/6, max = setldel, mode = setldel))
 #' }
-#' minor_2 <- claim_miRev_time(test_claims, minor, miRev_time_NatP)
+#' minor_2 <- claim_minRev_time(test_claims, minor, minRev_time_notatP)
 #'
 #' # update the revision multipliers (need to generate "major" first)
-#' # minor <- claim_miRev_size(test_claims, major, minor)
+#' # minor <- claim_minRev_size(test_claims, major, minor)
 #' @export
-claim_miRev_size <- function(
+claim_minRev_size <- function(
   claims,
-  maRev_list, # to get the time of the 2nd major revision
-  miRev_list,
+  majRev_list, # to get the time of the 2nd major revision
+  minRev_list,
   rfun,
   paramfun_atP,
-  paramfun_NatP,
+  paramfun_notatP,
   settlement_list = claims$settlement_list,
   ...
 ) {
 
-  if (!missing(rfun) & (missing(paramfun_atP) | missing(paramfun_NatP))) {
+  if (!missing(rfun) & (missing(paramfun_atP) | missing(paramfun_notatP))) {
     stop("need to specify 'paramfun' for the sampling distribution")
   }
 
-  # default function to simulate multiplier sizes (common for miRev atP and NatP)
+  # default function to simulate multiplier sizes (common for minRev atP and NatP)
   if (missing(rfun)) {
     rfun <- function(
       # n = number of minor revisions
-      n, miRev_time, maRev_time_2nd, setldel) {
+      n, minRev_time, majRev_time_2nd, setldel) {
 
-      k <- length(miRev_time)
-      miRev_multiplier <- vector(length = k)
+      k <- length(minRev_time)
+      minRev_factor <- vector(length = k)
 
       if (k >= 1) {
         for (i in 1:k) {
-          curr <- miRev_time[i]
+          curr <- minRev_time[i]
           if (curr <= setldel/3) {
             meanlog <- 0.15
           } else if (curr <= (2/3) * setldel) {
@@ -410,47 +410,47 @@ claim_miRev_size <- function(
           } else {
             meanlog <- -0.1
           }
-          sdlog <- ifelse(curr > maRev_time_2nd, 0.05, 0.1)
-          miRev_multiplier[i] <- stats::rlnorm(n = 1, meanlog, sdlog)
+          sdlog <- ifelse(curr > majRev_time_2nd, 0.05, 0.1)
+          minRev_factor[i] <- stats::rlnorm(n = 1, meanlog, sdlog)
         }
       }
 
-      miRev_multiplier
+      minRev_factor
     }
 
-    # extract miRev_time and maRev_time_2nd
+    # extract minRev_time and majRev_time_2nd
     paramfun_atP <- function(major, minor, setldel, ...) {
-      list(miRev_time = minor$miRev_time_atP,
-           maRev_time_2nd = ifelse(
-             # so it always holds miRev_time < maRev_time_2nd
-             is.na(major$maRev_time[2]), setldel + 1, major$maRev_time[2]),
+      list(minRev_time = minor$minRev_time_atP,
+           majRev_time_2nd = ifelse(
+             # so it always holds minRev_time < majRev_time_2nd
+             is.na(major$majRev_time[2]), setldel + 1, major$majRev_time[2]),
            setldel = setldel,
            ...)
     }
 
-    paramfun_NatP <- function(major, minor, setldel, ...) {
-      list(miRev_time = minor$miRev_time_NatP,
-           maRev_time_2nd = ifelse(
-             # so it always holds miRev_time < maRev_time_2nd
-             is.na(major$maRev_time[2]), setldel + 1, major$maRev_time[2]),
+    paramfun_notatP <- function(major, minor, setldel, ...) {
+      list(minRev_time = minor$minRev_time_notatP,
+           majRev_time_2nd = ifelse(
+             # so it always holds minRev_time < majRev_time_2nd
+             is.na(major$majRev_time[2]), setldel + 1, major$majRev_time[2]),
            setldel = setldel,
            ...)
     }
   }
 
-  I <- length(miRev_list)
+  I <- length(minRev_list)
   params_atP <- mapply(
     paramfun_atP,
     setldel = unlist(settlement_list, use.names = FALSE),
-    major = unlist(maRev_list, use.names = FALSE, recursive = FALSE),
-    minor = unlist(miRev_list, use.names = FALSE, recursive = FALSE),
+    major = unlist(majRev_list, use.names = FALSE, recursive = FALSE),
+    minor = unlist(minRev_list, use.names = FALSE, recursive = FALSE),
     ...
   )
-  params_NatP <- mapply(
-    paramfun_NatP,
+  params_notatP <- mapply(
+    paramfun_notatP,
     setldel = unlist(settlement_list, use.names = FALSE),
-    major = unlist(maRev_list, use.names = FALSE, recursive = FALSE),
-    minor = unlist(miRev_list, use.names = FALSE, recursive = FALSE),
+    major = unlist(majRev_list, use.names = FALSE, recursive = FALSE),
+    minor = unlist(minRev_list, use.names = FALSE, recursive = FALSE),
     ...
   )
 
@@ -470,34 +470,34 @@ claim_miRev_size <- function(
   # in the dataframe, each row represents a parameter, and each column gives the
   # parameter values for a specific claim
 
-  # repeat for params_NatP
-  if (!is.null(names(params_NatP))) {
-    params_split_NatP <- split(unname(params_NatP), names(params_NatP))
-  } else if (length(params_NatP)) {
-    params_split_NatP <- asplit(params_NatP, 1)
+  # repeat for params_notatP
+  if (!is.null(names(params_notatP))) {
+    params_split_notatP <- split(unname(params_notatP), names(params_notatP))
+  } else if (length(params_notatP)) {
+    params_split_notatP <- asplit(params_notatP, 1)
   } else {
-    params_split_NatP <- params_NatP
+    params_split_notatP <- params_notatP
   }
-  args <- as.list(params_split_NatP)
+  args <- as.list(params_split_notatP)
   keep_names <- c(intersect(names(args), names(formals(rfun))))
   keep_formals <- c(args[keep_names])
-  args_df_NatP <- do.call(rbind, keep_formals)
+  args_df_notatP <- do.call(rbind, keep_formals)
 
   curr <- 1
   for (i in 1:I) {
-    for (j in 1 : length(miRev_list[[i]])) {
+    for (j in 1 : length(minRev_list[[i]])) {
 
-      k1 <- miRev_list[[i]][[j]]$miRev_no_atP
-      k2 <- miRev_list[[i]][[j]]$miRev_no_NatP
+      k1 <- minRev_list[[i]][[j]]$minRev_freq_atP
+      k2 <- minRev_list[[i]][[j]]$minRev_freq_notatP
 
-      miRev_list[[i]][[j]]$miRev_multiplier_atP <- do.call(
+      minRev_list[[i]][[j]]$minRev_factor_atP <- do.call(
         rfun, c(as.list(args_df_atP[, curr]), n = k1))
-      miRev_list[[i]][[j]]$miRev_multiplier_NatP <- do.call(
-        rfun, c(as.list(args_df_NatP[, curr]), n = k2))
+      minRev_list[[i]][[j]]$minRev_factor_notatP <- do.call(
+        rfun, c(as.list(args_df_notatP[, curr]), n = k2))
 
       curr <- curr + 1
     }
   }
 
-  miRev_list
+  minRev_list
 }

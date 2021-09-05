@@ -12,10 +12,10 @@
 #' simulated quantities (other than those related to incurred loss), see
 #' \code{\link[SynthETIC]{claims}}.
 #' @param rfun optional alternative random sampling function for:
-#' * `claim_maRev_no`: the number of major revisions;
-#' * `claim_maRev_time`: the epochs of major revisions measured from claim
+#' * `claim_majRev_freq`: the number of major revisions;
+#' * `claim_majRev_time`: the epochs of major revisions measured from claim
 #' notification;
-#' * `claim_maRev_size`: the sizes of the major revision multipliers.
+#' * `claim_majRev_size`: the sizes of the major revision multipliers.
 #'
 #' See Details for default.
 #' @param paramfun parameters for the random sampling function, as a function of
@@ -28,16 +28,16 @@
 #' @param ... other arguments/parameters to be passed onto \code{paramfun}.
 #'
 #' For example, if going with the default sampling distribution for
-#' `claim_maRev_no`, you can specify a `claim_size_benchmark` (below which
+#' `claim_majRev_freq`, you can specify a `claim_size_benchmark` (below which
 #' claims are assumed to have no major revisions other than one at claim
 #' notification; default benchmark at 0.075 * `ref_claim`).
 #'
-#' @section Details - `claim_maRev_no` (Frequency): Let *K* represent the number
+#' @section Details - `claim_majRev_freq` (Frequency): Let *K* represent the number
 #' of major revisions associated with a particular claim. The notification of a
 #' claim is considered as a major revision, so all claims have at least 1 major
 #' revision (\eqn{K \ge 1}).
 #'
-#' The default `maRev_no_function` specifies that no additional major revisions
+#' The default `majRev_freq_function` specifies that no additional major revisions
 #' will occur for claims of size smaller than or equal to `claim_size_benchmark`
 #' (0.075 * `ref_claim` by default). For claims above this threshold,
 #' \tabular{ll}{
@@ -52,27 +52,27 @@
 #' not occur at all for the smallest claims. Note also that by default a claim
 #' may experience **up to a maximum of 2 major revisions** in addition to the
 #' one at claim notification. This is taken as an assumption in the default
-#' setting of `claim_maRev_size()`. If user decides to modify this assumption,
+#' setting of `claim_majRev_size()`. If user decides to modify this assumption,
 #' they will need to take care of the part on the major revision size as well.
 #' @return A nested list structure such that the *j*th component of the *i*th
 #' sub-list is a list of information on major revisions of the *j*th claim of
 #' occurrence period *i*. The "unit list" (i.e. the smallest, innermost
 #' sub-list) contains the following components:
 #' \tabular{ll}{
-#' `maRev_no` \tab Number of major revisions of incurred loss
-#' \[`claim_maRev_no()`\]. \cr
-#' `maRev_time` \tab Time of major revisions (from claim notification)
-#' \[`claim_maRev_time()`\]. \cr
-#' `maRev_multiplier` \tab Major revision multiplier of **incurred loss**
-#' \[`claim_maRev_size()`\]. \cr
-#' `maRev_atP` \tab An indicator, `1` if the last major revision occurs at the
+#' `majRev_freq` \tab Number of major revisions of incurred loss
+#' \[`claim_majRev_freq()`\]. \cr
+#' `majRev_time` \tab Time of major revisions (from claim notification)
+#' \[`claim_majRev_time()`\]. \cr
+#' `majRev_factor` \tab Major revision multiplier of **incurred loss**
+#' \[`claim_majRev_size()`\]. \cr
+#' `majRev_atP` \tab An indicator, `1` if the last major revision occurs at the
 #' time of the last major payment (i.e. second last payment), `0` otherwise
-#' \[`claim_maRev_time()`\].
+#' \[`claim_majRev_time()`\].
 #' }
 #' @seealso \code{\link[SynthETIC]{claims}}
 #' @export
-#' @name claim_maRev
-claim_maRev_no <- function(
+#' @name claim_majRev
+claim_majRev_freq <- function(
   claims,
   rfun,
   paramfun,
@@ -97,7 +97,7 @@ claim_maRev_no <- function(
   # default function to simulate the number of major revisions
   # NOTE: the default function takes as an assumption that there are max 3
   # major revisions -> if user wants to change this, they need to take care of
-  # the later module (maRev_size) too
+  # the later module (majRev_size) too
   if (missing(rfun)) {
     rfun <- function(
       # n = number of observations/claims
@@ -141,13 +141,13 @@ claim_maRev_no <- function(
 
   I <- length(frequency_vector)
   no_claims <- sum(frequency_vector)
-  maRev <- vector("list", I)
-  # maRev_unit stores all major revision information on a single claim
-  maRev_unit <- list(
-    maRev_no = NA,
-    maRev_time = NA,
-    maRev_multiplier = NA,
-    maRev_atP = NA
+  majRev <- vector("list", I)
+  # majRev_unit stores all major revision information on a single claim
+  majRev_unit <- list(
+    majRev_freq = NA,
+    majRev_time = NA,
+    majRev_factor = NA,
+    majRev_atP = NA
   )
   # set up the simulation parameters
   params <- mapply(paramfun,
@@ -170,39 +170,39 @@ claim_maRev_no <- function(
 
   if (paramfun_filled) {
     # check if the "empty" paramfun is sufficient to call the rfun
-    tt <- try(no_maRev_vect <- do.call(rfun, keep_formals), TRUE)
+    tt <- try(no_majRev_vect <- do.call(rfun, keep_formals), TRUE)
     if (methods::is(tt, "try-error")) {
       stop("need to specify 'paramfun' for the sampling distribution")
     }
   } else {
-    no_maRev_vect <- do.call(rfun, keep_formals)
+    no_majRev_vect <- do.call(rfun, keep_formals)
   }
 
   curr <- 1 # curr tracks the claim number
   for (i in 1:I) {
-    maRev[[i]] <- vector("list", frequency_vector[i])
+    majRev[[i]] <- vector("list", frequency_vector[i])
     for (j in 1:frequency_vector[i]) {
-      maRev[[i]][[j]] <- maRev_unit
-      maRev[[i]][[j]]$maRev_no <- no_maRev_vect[curr]
+      majRev[[i]][[j]] <- majRev_unit
+      majRev[[i]][[j]]$majRev_freq <- no_majRev_vect[curr]
       curr <- curr + 1
     }
   }
 
-  maRev
+  majRev
 }
 
 
-#' @rdname claim_maRev
+#' @rdname claim_majRev
 #' @param claims an \code{\link[SynthETIC]{claims}} object containing all the
 #' simulated quantities (other than those related to incurred loss), see
 #' \code{\link[SynthETIC]{claims}}.
-#' @param maRev_list nested list of major revision histories (with non-empty
+#' @param majRev_list nested list of major revision histories (with non-empty
 #' revision frequencies).
 #' @param rfun optional alternative random sampling function for:
-#' * `claim_maRev_no`: the number of major revisions;
-#' * `claim_maRev_time`: the epochs of major revisions measured from claim
+#' * `claim_majRev_freq`: the number of major revisions;
+#' * `claim_majRev_time`: the epochs of major revisions measured from claim
 #' notification;
-#' * `claim_maRev_size`: the sizes of the major revision multipliers.
+#' * `claim_majRev_size`: the sizes of the major revision multipliers.
 #'
 #' See Details for default.
 #' @param paramfun parameters for the random sampling function, as a function of
@@ -216,7 +216,7 @@ claim_maRev_no <- function(
 #' \code{\link[SynthETIC]{claim_payment_delay}}.
 #' @param ... other arguments/parameters to be passed onto \code{paramfun}.
 #'
-#' @section Details - `claim_maRev_time` (Time): Let \eqn{\tau_k} represent the
+#' @section Details - `claim_majRev_time` (Time): Let \eqn{\tau_k} represent the
 #' epoch of the *k*th major revision (time measured from claim notification),
 #' \eqn{k = 1, ..., K}. As the notification of a claim is considered a major
 #' revision itself, we have \eqn{\tau_1 = 0} for all claims.
@@ -243,12 +243,12 @@ claim_maRev_no <- function(
 #' - maximum density at `mode = settlement_delay / 3`.
 #'
 #' Note that when there is a major revision at the time of the second last
-#' partial payment, `maRev_atP` (one of the output list components) will be set
+#' partial payment, `majRev_atP` (one of the output list components) will be set
 #' to be 1.
 #' @export
-claim_maRev_time <- function(
+claim_majRev_time <- function(
   claims,
-  maRev_list,
+  majRev_list,
   rfun,
   paramfun,
   claim_size_list = claims$claim_size_list,
@@ -275,8 +275,8 @@ claim_maRev_time <- function(
     rfun <- function(n, claim_size, setldel, penultimate_delay) {
       # n = number of simulations, here n should be the number of major revisions
       # penultimate_delay = delay from notification to penultimate payment
-      maRev_time <- rep(NA, times = n)
-      maRev_time[1] <- 0 # first revision at notification
+      majRev_time <- rep(NA, times = n)
+      majRev_time[1] <- 0 # first revision at notification
 
       # inherit ref_claim from SynthETIC
       ref_claim <- SynthETIC::return_parameters()[1]
@@ -289,17 +289,17 @@ claim_maRev_time <- function(
         at_second_last_pmt <- sample(c(0, 1), size = 1, replace = TRUE, prob = c(1-p, p))
         if (at_second_last_pmt == 0) {
           # no revision at second last payment
-          maRev_time[2:n] <- sort(rtri(n - 1, min = setldel/3, max = setldel, mode = setldel/3))
+          majRev_time[2:n] <- sort(rtri(n - 1, min = setldel/3, max = setldel, mode = setldel/3))
         } else {
           # revision at second last payment
-          maRev_time[n] <- penultimate_delay
+          majRev_time[n] <- penultimate_delay
           if (n > 2) {
-            maRev_time[2:(n-1)] <- sort(
-              rtri(n - 2, min = maRev_time[n]/3, max = maRev_time[n], mode = maRev_time[n]/3))
+            majRev_time[2:(n-1)] <- sort(
+              rtri(n - 2, min = majRev_time[n]/3, max = majRev_time[n], mode = majRev_time[n]/3))
           }
         }
       }
-      maRev_time
+      majRev_time
     }
 
     # the paramfun needs to account for the "computation" of penultimate_delay
@@ -310,7 +310,7 @@ claim_maRev_time <- function(
     }
   }
 
-  I <- length(maRev_list)
+  I <- length(majRev_list)
   params <- mapply(
     paramfun,
     claim_size = unlist(claim_size_list, use.names = FALSE),
@@ -340,52 +340,52 @@ claim_maRev_time <- function(
 
   curr <- 1
   for (i in 1:I) {
-    for (j in 1 : length(maRev_list[[i]])) {
+    for (j in 1 : length(majRev_list[[i]])) {
 
-      k <- maRev_list[[i]][[j]]$maRev_no
+      k <- majRev_list[[i]][[j]]$majRev_freq
 
       if (paramfun_filled) {
-        tt <- try(maRev_list[[i]][[j]]$maRev_time <- do.call(
+        tt <- try(majRev_list[[i]][[j]]$majRev_time <- do.call(
           rfun, c(as.list(args_df[, curr]), n = k)))
         if (methods::is(tt, "try-error")) {
           stop("need to specify 'paramfun' for the sampling distribution")
         }
       } else {
-        maRev_list[[i]][[j]]$maRev_time <- do.call(
+        majRev_list[[i]][[j]]$majRev_time <- do.call(
           rfun, c(as.list(args_df[, curr]), n = k))
       }
 
       # is there a revision at second last payment?
       payment_delays <- payment_delay_list[[i]][[j]]
       no_pmt <- length(payment_delays)
-      maRev_list[[i]][[j]]$maRev_atP <- ifelse(
-        maRev_list[[i]][[j]]$maRev_time[k] == sum(payment_delays[1:(no_pmt - 1)]),
+      majRev_list[[i]][[j]]$majRev_atP <- ifelse(
+        majRev_list[[i]][[j]]$majRev_time[k] == sum(payment_delays[1:(no_pmt - 1)]),
         1, 0)
 
       curr <- curr + 1
     }
   }
 
-  maRev_list
+  majRev_list
 }
 
 
-#' @rdname claim_maRev
-#' @param maRev_list nested list of major revision histories (with non-empty
+#' @rdname claim_majRev
+#' @param majRev_list nested list of major revision histories (with non-empty
 #' revision frequencies).
 #' @param rfun optional alternative random sampling function for:
-#' * `claim_maRev_no`: the number of major revisions;
-#' * `claim_maRev_time`: the epochs of major revisions measured from claim
+#' * `claim_majRev_freq`: the number of major revisions;
+#' * `claim_majRev_time`: the epochs of major revisions measured from claim
 #' notification;
-#' * `claim_maRev_size`: the sizes of the major revision multipliers.
+#' * `claim_majRev_size`: the sizes of the major revision multipliers.
 #'
 #' See Details for default.
 #' @param paramfun parameters for the random sampling function, as a function of
 #' other claim characteristics such as \code{claim_size}; see Details.
 #' @param ... other arguments/parameters to be passed onto \code{paramfun}.
 #'
-#' @section Details - `claim_maRev_size` (Revision Multiplier): As mentioned in
-#' the frequency section ("Details - `claim_maRev_no`"), the default function
+#' @section Details - `claim_majRev_size` (Revision Multiplier): As mentioned in
+#' the frequency section ("Details - `claim_majRev_freq`"), the default function
 #' for the major revision multipliers assumes that there are only up to 2 major
 #' revisions (in addition to the one at claim notification) for all claims.
 #'
@@ -406,26 +406,26 @@ claim_maRev_time <- function(
 #' is, a revision multiplier of 2.54 means that at the time of the major
 #' revision the incurred loss increases by a factor of 2.54. We highlight this
 #' as **in the case of minor revisions, the multipliers will instead apply to
-#' outstanding claim amounts**, see \code{\link{claim_miRev}}.
+#' outstanding claim amounts**, see \code{\link{claim_minRev}}.
 #'
 #' @examples
 #' set.seed(1)
 #' test_claims <- SynthETIC::test_claims_object
-#' major <- claim_maRev_no(test_claims)
+#' major <- claim_majRev_freq(test_claims)
 #' major[[1]][[1]] # the "unit list" for the first claim
 #'
 #' # update the timing information
-#' major <- claim_maRev_time(test_claims, major)
+#' major <- claim_majRev_time(test_claims, major)
 #' # observe how this has changed
 #' major[[1]][[1]]
 #'
 #' # update the revision multipliers
-#' major <- claim_maRev_size(major)
+#' major <- claim_majRev_size(major)
 #' # again observe how this has changed
 #' major[[1]][[1]]
 #' @export
-claim_maRev_size <- function(
-  maRev_list,
+claim_majRev_size <- function(
+  majRev_list,
   rfun,
   paramfun,
   ...
@@ -446,21 +446,21 @@ claim_maRev_size <- function(
 
   # default function to simulate multiplier sizes
   # NOTE: this only works for up to 3 major revisions -> if user has adjusted
-  # the maRev_no_function, they will need to adjust this accordingly
+  # the majRev_freq_function, they will need to adjust this accordingly
   if (missing(rfun)) {
     rfun <- function(n) {
       # n = number of simulations, here n should be the number of major revisions
-      maRev_multiplier <- rep(NA, times = n)
-      maRev_multiplier[1] <- 1 # for first revision (at notification)
+      majRev_factor <- rep(NA, times = n)
+      majRev_factor[1] <- 1 # for first revision (at notification)
       if (n > 1) { # if the claim has multiple major revisions
-        maRev_multiplier[2] <- stats::rlnorm(n = 1, meanlog = 1.8, sdlog = 0.2)
+        majRev_factor[2] <- stats::rlnorm(n = 1, meanlog = 1.8, sdlog = 0.2)
         if (n > 2) {
-          mu <- 1 + 0.07 * (6 - maRev_multiplier[2])
-          maRev_multiplier[3] <- stats::rlnorm(n = 1, meanlog = mu, sdlog = 0.1)
+          mu <- 1 + 0.07 * (6 - majRev_factor[2])
+          majRev_factor[3] <- stats::rlnorm(n = 1, meanlog = mu, sdlog = 0.1)
         }
       }
 
-      maRev_multiplier
+      majRev_factor
     }
 
     # the default rfun does not depend on other claim characteristics, so the
@@ -471,7 +471,7 @@ claim_maRev_size <- function(
 
   }
 
-  I <- length(maRev_list)
+  I <- length(majRev_list)
   params <- mapply(paramfun, ...)
 
   # if params only has one parameter, asplit() won't work
@@ -495,18 +495,18 @@ claim_maRev_size <- function(
 
   curr <- 1
   for (i in 1:I) {
-    for (j in 1 : length(maRev_list[[i]])) {
+    for (j in 1 : length(majRev_list[[i]])) {
 
-      k <- maRev_list[[i]][[j]]$maRev_no
+      k <- majRev_list[[i]][[j]]$majRev_freq
 
       if (paramfun_filled) {
-        tt <- try(maRev_list[[i]][[j]]$maRev_multiplier <- do.call(
+        tt <- try(majRev_list[[i]][[j]]$majRev_factor <- do.call(
           rfun, c(as.list(args_df[, curr]), n = k)))
         if (methods::is(tt, "try-error")) {
           stop("need to specify 'paramfun' for the sampling distribution")
         }
       } else {
-        maRev_list[[i]][[j]]$maRev_multiplier <- do.call(
+        majRev_list[[i]][[j]]$majRev_factor <- do.call(
           rfun, c(as.list(args_df[, curr]), n = k))
       }
 
@@ -514,6 +514,6 @@ claim_maRev_size <- function(
     }
   }
 
-  maRev_list
+  majRev_list
 
 }

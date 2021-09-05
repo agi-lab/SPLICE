@@ -6,8 +6,8 @@
 \usage{
 claim_history(
   claims,
-  maRev_list,
-  miRev_list,
+  majRev_list,
+  minRev_list,
   k1 = 0.95,
   k2 = 0.95,
   base_inflation_vector = NULL,
@@ -19,11 +19,11 @@ claim_history(
 (other than those related to incurred loss), see
 \code{\link[SynthETIC]{claims}}.}
 
-\item{maRev_list}{nested list of major revision histories, see
-\code{\link{claim_maRev}}.}
+\item{majRev_list}{nested list of major revision histories, see
+\code{\link{claim_majRev}}.}
 
-\item{miRev_list}{nested list of minor revision histories, see
-\code{\link{claim_miRev}}.}
+\item{minRev_list}{nested list of minor revision histories, see
+\code{\link{claim_minRev}}.}
 
 \item{k1}{maximum amount of cumulative claims paid as a proportion of
 total incurred estimate for major revisions; between 0 and 1.}
@@ -60,10 +60,10 @@ transactions (in the "right" continuous sense). \cr
 after each of the transactions (in the "right" continuous sense). \cr
 \code{incurred_right} \tab Case estimate of incurred loss immediately after each
 of the transactions (in the "right" continuous sense). \cr
-\code{miRev} \tab A list containing full history of minor revisions (frequency,
-time and revision size); \code{\link{claim_miRev}}. \cr
-\code{maRev} \tab A list containing full history of major revisions (frequency,
-time and revision size); see \code{\link{claim_maRev}}.
+\code{minRev} \tab A list containing full history of minor revisions (frequency,
+time and revision size); \code{\link{claim_minRev}}. \cr
+\code{majRev} \tab A list containing full history of major revisions (frequency,
+time and revision size); see \code{\link{claim_majRev}}.
 }
 
 and optionally (by setting \code{keep_all = TRUE}),
@@ -90,7 +90,7 @@ adjustments:
 \item Major and minor revisions should not occur simultaneously. In the event
 that they do (which is only possible at the second last partial payment),
 the major revision takes precedence, and the minor revision be discarded.
-This will be reflected in the \code{maRev} and \code{miRev} components of the output
+This will be reflected in the \code{majRev} and \code{minRev} components of the output
 list.
 \item Estimates of incurred loss are specified to be computed in reverse order,
 and it is necessary that the total incurred estimate is always strictly

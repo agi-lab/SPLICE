@@ -37,28 +37,28 @@ generate_incurred_dataset <- function(
   )
 
   # Extract and append the multiplier information
-  maRev_multiplier <- miRev_multiplier_atP <- miRev_multiplier_NatP <- vector()
+  majRev_factor <- minRev_factor_atP <- minRev_factor_notatP <- vector()
   tcount <- 0
   for (i in 1:I) {
     for (j in 1:claims$frequency_vector[i]) {
-      extract_ma <- incurred_history[[i]][[j]]$maRev$maRev_multiplier
-      extract_miP <- incurred_history[[i]][[j]]$miRev$miRev_multiplier_atP
-      extract_miNP <- incurred_history[[i]][[j]]$miRev$miRev_multiplier_NatP
-      num <- incurred_history[[i]][[j]]$miRev$miRev_no_atP
+      extract_ma <- incurred_history[[i]][[j]]$majRev$majRev_factor
+      extract_miP <- incurred_history[[i]][[j]]$minRev$minRev_factor_atP
+      extract_miNP <- incurred_history[[i]][[j]]$minRev$minRev_factor_notatP
+      num <- incurred_history[[i]][[j]]$minRev$minRev_freq_atP
 
-      maRev_multiplier <- c(maRev_multiplier, extract_ma)
-      miRev_multiplier_atP <- c(miRev_multiplier_atP, extract_miP)
-      miRev_multiplier_NatP <- c(miRev_multiplier_NatP, extract_miNP)
+      majRev_factor <- c(majRev_factor, extract_ma)
+      minRev_factor_atP <- c(minRev_factor_atP, extract_miP)
+      minRev_factor_notatP <- c(minRev_factor_notatP, extract_miNP)
       tcount <- tcount + num
     }
   }
 
   incurred_dataset[incurred_dataset$txn_type %in% c("Ma", "PMa"), "multiplier"] <-
-    maRev_multiplier
+    majRev_factor
   incurred_dataset[incurred_dataset$txn_type == "PMi", "multiplier"] <-
-    miRev_multiplier_atP
+    minRev_factor_atP
   incurred_dataset[incurred_dataset$txn_type == "Mi", "multiplier"] <-
-    miRev_multiplier_NatP
+    minRev_factor_notatP
 
   incurred_dataset
 }
