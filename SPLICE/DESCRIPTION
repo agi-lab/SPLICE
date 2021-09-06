@@ -10,9 +10,6 @@ Author: Benjamin Avanzi [aut], Greg Taylor [aut], Melantha Wang [aut, cre], Bern
 Maintainer: Melantha Wang <wang.melantha@gmail.com>
 Imports:
     stats,
-    ggplot2,
-    magrittr,
-    rlang,
     methods,
     zoo
 Description: An extension to the individual claim simulator called 'SynthETIC'
