@@ -205,6 +205,13 @@ increases by a factor of 2.54.
 \examples{
 set.seed(1)
 test_claims <- SynthETIC::test_claims_object
+
+# generate major revisions (required for the simulation of minor revisions)
+major <- claim_majRev_freq(test_claims)
+major <- claim_majRev_time(test_claims, major)
+major <- claim_majRev_size(major)
+
+# generate frequency of minor revisions
 minor <- claim_minRev_freq(test_claims)
 minor[[1]][[1]] # the "unit list" for the first claim
 
@@ -219,7 +226,7 @@ minRev_time_notatP <- function(n, setldel) {
 minor_2 <- claim_minRev_time(test_claims, minor, minRev_time_notatP)
 
 # update the revision multipliers (need to generate "major" first)
-# minor <- claim_minRev_size(test_claims, major, minor)
+minor <- claim_minRev_size(test_claims, major, minor)
 }
 \seealso{
 \code{\link[SynthETIC]{claims}}
