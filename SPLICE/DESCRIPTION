@@ -4,8 +4,9 @@ Version: 1.0.0
 Authors@R: c(
     person("Benjamin", "Avanzi", role = "aut", email = "b.avanzi@unimelb.edu.au"),
     person("Greg", "Taylor", role = "aut", email = "greg_taylor60@hotmail.com"),
-    person("Melantha", "Wang", role = c("aut", "cre"), email = "wang.melantha@gmail.com"))
-Author: Benjamin Avanzi [aut], Greg Taylor [aut], Melantha Wang [aut, cre]
+    person("Melantha", "Wang", role = c("aut", "cre"), email = "wang.melantha@gmail.com"),
+    person("William", "Ho", role = "rev"))
+Author: Benjamin Avanzi [aut], Greg Taylor [aut], Melantha Wang [aut, cre], William Ho [rev]
 Maintainer: Melantha Wang <wang.melantha@gmail.com>
 Imports:
     stats,

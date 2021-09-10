@@ -35,5 +35,10 @@ Authors:
   \item Greg Taylor \email{greg_taylor60@hotmail.com}
 }
 
+Other contributors:
+\itemize{
+  \item William Ho [reviewer]
+}
+
 }
 \keyword{internal}
