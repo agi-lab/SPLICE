@@ -15,6 +15,8 @@ An extension to the individual claim simulator called 'SynthETIC'
     by default to generate a realistic test data set of incurred histories (see
     vignette). However, the distributional assumptions used to generate this
     data set can be easily modified by users to match their experiences.
+    Reference: Avanzi B, Taylor G, Wang M (2021) "SPLICE: A Synthetic Paid Loss
+    and Incurred Cost Experience Simulator" <arXiv:2109.04058>.
 }
 \seealso{
 Useful links:
@@ -31,7 +33,6 @@ Authors:
 \itemize{
   \item Benjamin Avanzi \email{b.avanzi@unimelb.edu.au}
   \item Greg Taylor \email{greg_taylor60@hotmail.com}
-  \item Bernard Wong \email{bernard.wong@unsw.edu.au}
 }
 
 }

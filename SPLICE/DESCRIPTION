@@ -4,9 +4,8 @@ Version: 1.0.0
 Authors@R: c(
     person("Benjamin", "Avanzi", role = "aut", email = "b.avanzi@unimelb.edu.au"),
     person("Greg", "Taylor", role = "aut", email = "greg_taylor60@hotmail.com"),
-    person("Melantha", "Wang", role = c("aut", "cre"), email = "wang.melantha@gmail.com"),
-    person("Bernard", "Wong", role = "aut", email = "bernard.wong@unsw.edu.au"))
-Author: Benjamin Avanzi [aut], Greg Taylor [aut], Melantha Wang [aut, cre], Bernard Wong [aut]
+    person("Melantha", "Wang", role = c("aut", "cre"), email = "wang.melantha@gmail.com"))
+Author: Benjamin Avanzi [aut], Greg Taylor [aut], Melantha Wang [aut, cre]
 Maintainer: Melantha Wang <wang.melantha@gmail.com>
 Imports:
     stats,
@@ -21,6 +20,8 @@ Description: An extension to the individual claim simulator called 'SynthETIC'
     by default to generate a realistic test data set of incurred histories (see
     vignette). However, the distributional assumptions used to generate this
     data set can be easily modified by users to match their experiences.
+    Reference: Avanzi B, Taylor G, Wang M (2021) "SPLICE: A Synthetic Paid Loss
+    and Incurred Cost Experience Simulator" <arXiv:2109.04058>.
 License: GPL-3
 Encoding: UTF-8
 URL: https://github.com/agi-lab/SPLICE
