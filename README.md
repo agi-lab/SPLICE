@@ -5,6 +5,11 @@ We introduce `SPLICE` (**S**ynthetic **P**aid **L**oss and **I**ncurred **C**ost
 
 An initial set of test parameters, designed to mirror the experience of a real insurance portfolio, were set up and applied by default to generate a realistic test data set of incurred histories (see vignette). However, the distributional assumptions used to generate this data set can be easily modified by users to match their experiences.
 
+## Reference
+For a full description of `SPLICE`'s structure and test parameters, readers should refer to:
+
+Avanzi, B., Taylor, G., Wang, M., 2021. `SPLICE`: A Synthetic Paid Loss and Incurred Cost Experience Simulator. [arXiv:2109.04058](https://arxiv.org/abs/2109.04058).
+
 ## Install Package
 To install the development version of the package from this GitHub repository, do
 
