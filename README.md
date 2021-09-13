@@ -11,6 +11,10 @@ For a full description of `SPLICE`'s structure and test parameters, readers shou
 Avanzi, B., Taylor, G., Wang, M., 2021. `SPLICE`: A Synthetic Paid Loss and Incurred Cost Experience Simulator. [arXiv:2109.04058](https://arxiv.org/abs/2109.04058).
 
 ## Install Package
+To install the [CRAN version of the package](https://CRAN.R-project.org/package=SPLICE), do
+
+`install.packages("SPLICE")`
+
 To install the development version of the package from this GitHub repository, do
 
 ```
