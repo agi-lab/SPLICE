@@ -77,11 +77,11 @@ In particular, `claim_majRev_freq()` sets up the structure of the major revision
 -------------------------------------------------------------------------------
 Name               Description
 -----------------  ------------------------------------------------------------
-`majRev_freq`         Number of major revisions of incurred loss; see [`claim_majRev_freq()`](#majRev_freq)
+`majRev_freq`       Number of major revisions of incurred loss; see [`claim_majRev_freq()`](#majRev_freq)
 
 `majRev_time`       Time of major revisions (from claim notification); see [`claim_majRev_time()`](#majRev_time)
 
-`majRev_factor` Major revision multiplier of **incurred loss**; see [`claim_majRev_size()`](#majRev_size)
+`majRev_factor`     Major revision multiplier of **incurred loss**; see [`claim_majRev_size()`](#majRev_size)
 
 `majRev_atP`        An indicator, `1` if the last major revision occurs at the time of the last major payment (i.e. second last payment), `0` otherwise; see [`claim_majRev_time()`](#majRev_time)
 
