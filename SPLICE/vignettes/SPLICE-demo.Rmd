@@ -408,13 +408,13 @@ Similar to the case of major revisions, the suite of functions under this headin
 -------------------------------------------------------------------------------
 Name                     Description
 -----------------------  ------------------------------------------------------
-`minRev_atP`               A logical vector indicating whether there is a minor revision at each partial payment; see [`claim_minRev_freq()`](#minRev_freq)
+`minRev_atP`              A logical vector indicating whether there is a minor revision at each partial payment; see [`claim_minRev_freq()`](#minRev_freq)
 
 `minRev_freq_atP`
-(`minRev_freq_notatP`)         Number of minor revisions that occur (or do not occur) simultaneously with a partial payment. `minRev_freq_atP` is numerically equal to the sum of `minRev_atP`
+(`minRev_freq_notatP`)    Number of minor revisions that occur (or do not occur) simultaneously with a partial payment. `minRev_freq_atP` is numerically equal to the sum of `minRev_atP`
 
 `minRev_time_atP`,
-(`minRev_time_notatP`)       Time of minor revisions that occur (or do not occur) simultaneously with a partial payment (time measured from claim notification); see [`claim_minRev_time()`](#minRev_time)
+(`minRev_time_notatP`)    Time of minor revisions that occur (or do not occur) simultaneously with a partial payment (time measured from claim notification); see [`claim_minRev_time()`](#minRev_time)
 
 `minRev_factor_atP`,
 (`minRev_factor_notatP`)  Minor revision multiplier of **outstanding claim payments** for revisions at partial payments and at any other times, respectively; see [`claim_minRev_size()`](#minRev_size)
