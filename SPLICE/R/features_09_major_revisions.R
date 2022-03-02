@@ -359,7 +359,7 @@ claim_majRev_time <- function(
       payment_delays <- payment_delay_list[[i]][[j]]
       no_pmt <- length(payment_delays)
       majRev_list[[i]][[j]]$majRev_atP <- ifelse(
-        majRev_list[[i]][[j]]$majRev_time[k] == sum(payment_delays[1:(no_pmt - 1)]),
+        k > 0 && majRev_list[[i]][[j]]$majRev_time[k] == sum(payment_delays[1:(no_pmt - 1)]),
         1, 0)
 
       curr <- curr + 1
@@ -456,7 +456,7 @@ claim_majRev_size <- function(
         majRev_factor[2] <- stats::rlnorm(n = 1, meanlog = 1.8, sdlog = 0.2)
         if (n > 2) {
           mu <- 1 + 0.07 * (6 - majRev_factor[2])
-          majRev_factor[3] <- stats::rlnorm(n = 1, meanlog = mu, sdlog = 0.1)
+          majRev_factor[3:n] <- stats::rlnorm(n = n - 2, meanlog = mu, sdlog = 0.1)
         }
       }
 
