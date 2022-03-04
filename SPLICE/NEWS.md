@@ -4,10 +4,9 @@
 
 ## New features {#new-features-1.1.0}
 
-* Adds `generate_data` function for the convenience of users who wish to
-generate (claims/payments/incurred) datasets of varying levels of complexity
-* Adds a package vignette `SPLICE-data-generation.Rmd` to demonstrate this 
-functionality
+* Adds `generate_data` function (experimental) for the convenience of users who 
+wish to generate (claims/payments/incurred) datasets of varying levels of 
+complexity
 
 ## Minor improvements and fixes {#bugfixes-1.1.0}
 
