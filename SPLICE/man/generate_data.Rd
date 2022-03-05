@@ -20,7 +20,7 @@ the total expected number of claims divided by \code{n_periods}).}
 \item{n_periods}{number of accident periods considered (equals number of
 claims development periods considered); default 40.}
 
-\item{complexity}{integer from 1 (simplest) to 5 (most complex).}
+\item{complexity}{integer from 1 (simplest) to 5 (most complex); see Details.}
 
 \item{data_type}{a character vector specifying output data types. By default
 the function will output all 3 datasets (claims, payments, incurred), but the
@@ -48,11 +48,30 @@ revision).
 }
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} \cr \cr
 Generates datasets under 5 scenarios of different levels of complexity (here
 "complexity" means the level of difficulty of analysis).
 }
 \details{
-Assume 40 periods. Inflated
+\code{generate_data()} produces datasets of varying levels of complexity,
+where 1 represents the simplest, and 5 represents the most complex:
+\itemize{
+\item 1 – simple, homogeneous claims experience, with zero inflation.
+\item 2 – slightly more complex than 1, with dependence of notification delay and
+settlement delay on claim size, and 2\% p.a. base inflation.
+\item 3 – steady increase in claim processing speed over occurrence periods (i.e.
+steady decline in settlement delays).
+\item 4 – inflation shock at time 30 (from 0\% to 10\% p.a.).
+\item 5 – default distributional models, with complex dependence structures (e.g.
+dependence of settlement delay on claim occurrence period).
+}
+
+We remark that this by no means defines the limits of the complexity that can
+be generated with \code{SPLICE}. This function is provided for the convenience of
+users who wish to generate (a collection of) datasets under some
+representative scenarios. If more complex features are required, the user is
+free to modify the distributional assumptions (which, of course, requires
+more thoughts and coding) to achieve their purposes.
 }
 \examples{
 # Generate datasets of full complexity

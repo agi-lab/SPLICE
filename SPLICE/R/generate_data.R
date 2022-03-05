@@ -20,7 +20,7 @@ get_params <- function(complexity) {
 
     # Remove the dependency of claim closure on occurrence period and claim size
     closure_paramfun <- function(claim_size, occurrence_period, ...) {
-      target_mean <- 30
+      target_mean <- min(25, max(1, 6 + 4 * log(claim_size / 20000)))
       target_cv <- 0.30
       params <- get_Weibull_parameters(target_mean, target_cv)
       return(c(shape = params[1, ], scale = params[2, ]))
@@ -192,6 +192,7 @@ get_params <- function(complexity) {
 
 #' Generate Data of Varying Complexity
 #'
+#' `r lifecycle::badge("experimental")` \cr \cr
 #' Generates datasets under 5 scenarios of different levels of complexity (here
 #' "complexity" means the level of difficulty of analysis).
 #'
@@ -207,9 +208,23 @@ get_params <- function(complexity) {
 #' reproducibility.
 #' @param verbose logical; if `TRUE` print a message about the data generated.
 #'
-#' @details
-#' Inflated
-#' Description of scenarios
+#' @details `generate_data()` produces datasets of varying levels of complexity,
+#' where 1 represents the simplest, and 5 represents the most complex:
+#' * 1 – simple, homogeneous claims experience, with zero inflation.
+#' * 2 – slightly more complex than 1, with dependence of notification delay and
+#' settlement delay on claim size, and 2% p.a. base inflation.
+#' * 3 – steady increase in claim processing speed over occurrence periods (i.e.
+#' steady decline in settlement delays).
+#' * 4 – inflation shock at time 30 (from 0% to 10% p.a.).
+#' * 5 – default distributional models, with complex dependence structures (e.g.
+#' dependence of settlement delay on claim occurrence period).
+#'
+#' We remark that this by no means defines the limits of the complexity that can
+#' be generated with `SPLICE`. This function is provided for the convenience of
+#' users who wish to generate (a collection of) datasets under some
+#' representative scenarios. If more complex features are required, the user is
+#' free to modify the distributional assumptions (which, of course, requires
+#' more thoughts and coding) to achieve their purposes.
 #'
 #' @return A named list of dataframes:
 #' \tabular{ll}{
