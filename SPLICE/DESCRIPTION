@@ -1,6 +1,6 @@
 Package: SPLICE
 Title: Synthetic Paid Loss and Incurred Cost Experience (SPLICE) Simulator
-Version: 1.0.0
+Version: 1.1.0
 Authors@R: c(
     person("Benjamin", "Avanzi", role = "aut", email = "b.avanzi@unimelb.edu.au"),
     person("Greg", "Taylor", role = "aut", email = "greg_taylor60@hotmail.com"),
@@ -11,7 +11,8 @@ Maintainer: Melantha Wang <wang.melantha@gmail.com>
 Imports:
     stats,
     methods,
-    zoo
+    zoo,
+    lifecycle
 Description: An extension to the individual claim simulator called 'SynthETIC'
     (on CRAN), to simulate the evolution of case estimates of incurred losses
     through the lifetime of an insurance claim. The transactional simulation
@@ -36,7 +37,6 @@ Suggests:
     dplyr,
     RColorBrewer,
     actuar,
-    poisson,
     ChainLadder
 VignetteBuilder: knitr
 Depends: 
