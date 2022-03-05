@@ -37,7 +37,6 @@ Suggests:
     dplyr,
     RColorBrewer,
     actuar,
-    poisson,
     ChainLadder
 VignetteBuilder: knitr
 Depends: 

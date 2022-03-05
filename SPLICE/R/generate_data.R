@@ -247,20 +247,21 @@ get_params <- function(complexity) {
 #'
 #' @examples
 #' # Generate datasets of full complexity
-#' result <- generate_data(n_claims_per_period = 100, complexity = 5, random_seed = 42)
+#' result <- generate_data(
+#'   n_claims_per_period = 50, data_type = c('claims', 'payments'),
+#'   complexity = 5, random_seed = 42)
 #'
 #' # Save individual datasets
 #' claims <- result$claim_dataset
 #' payments <- result$payment_dataset
-#' incurred <- result$incurred_dataset
 #'
 #' # Generate chain-ladder compatible dataset
 #' CL_simple <- generate_data(
-#'   n_claims_per_period = 100, data_type = 'claims', complexity = 1, random_seed = 42)
+#'   n_claims_per_period = 50, data_type = 'claims', complexity = 1, random_seed = 42)
 #'
 #' # To mute message output
 #' CL_simple_2 <- generate_data(
-#'   n_claims_per_period = 100, verbose = FALSE, random_seed = 42)
+#'   n_claims_per_period = 50, data_type = 'claims', verbose = FALSE, random_seed = 42)
 #'
 #' # Ouput is reproducible with the same random_seed value
 #' all.equal(CL_simple$claim_dataset, CL_simple_2$claim_dataset)
@@ -306,7 +307,7 @@ generate_data <- function(
   # M1: Claim occurrence
   # Number of claims occurring for each period i
   freq_vector <- claim_frequency(
-    I = n_periods, simfun = rpois, lambda = n_claims_per_period)
+    I = n_periods, simfun = stats::rpois, lambda = n_claims_per_period)
   # Occurrence time of each claim r, for each period i
   occurrence_times <- claim_occurrence(freq_vector)
 
