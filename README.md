@@ -32,5 +32,5 @@ as you would normally do will load the package. View a full demonstration of the
 
 ## Additional Resources
 * [Chain ladder analysis for the test data set](https://github.com/agi-lab/SPLICE/blob/main/CL_Incurred_Analysis.xlsx)
-
+* [Example datasets](https://github.com/agi-lab/SPLICE/tree/main/datasets)
 
