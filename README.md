@@ -1,4 +1,4 @@
-# SPLICE [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/SPLICE)](https://CRAN.R-project.org/package=SPLICE)
+# SPLICE [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/SPLICE)](https://CRAN.R-project.org/package=SPLICE) [![DOI](https://zenodo.org/badge/384910094.svg)](https://zenodo.org/badge/latestdoi/384910094)
 
 ## Introduction
 We introduce `SPLICE` (**S**ynthetic **P**aid **L**oss and **I**ncurred **C**ost **E**xperience), an extension to the individual claim simulator called [`SynthETIC`](https://CRAN.R-project.org/package=SynthETIC). `SPLICE` serves to simulate the evolution of case estimates of incurred losses through the lifetime of a claim, under a flexible modelling framework which resembles that of [`SynthETIC`](https://CRAN.R-project.org/package=SynthETIC).
