@@ -1,5 +1,12 @@
 # SPLICE
 
+# SPLICE 1.1.1
+
+## Minor improvements and fixes 
+
+* Removes dependency (`Suggests`) on the `ChainLadder` package
+* Updates citation
+
 # SPLICE 1.1.0
 
 ## New features {#new-features-1.1.0}
