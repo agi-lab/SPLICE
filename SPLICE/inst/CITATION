@@ -1,0 +1,24 @@
+citHeader("To cite SPLICE in publications use:")
+
+bibentry(
+  bibtype = "Article",
+  title = "{SPLICE}: {A} synthetic paid loss and incurred cost experience simulator",
+	volume = "17",
+	number = "1",
+	doi = "10.1017/S1748499522000057",
+	language = "en",
+	journal = "Annals of Actuarial Science",
+	publisher = "Cambridge University Press",
+	author = c(
+	  person("Benjamin", "Avanzi"),
+    person("Greg", "Taylor"),
+    person("Melantha", "Wang")),
+	month = "mar",
+	year = "2023",
+	pages = "7--35",
+	textVersion = paste("Avanzi, B., Taylor, G., Wang, M., 2023.",
+	                    "SPLICE: A synthetic paid loss and incurred cost experience",
+	                    "simulator. Annals of Actuarial Science",
+	                    "17(1), 7-35.",
+	                    "https://doi.org/10.1017/S1748499522000057")
+)

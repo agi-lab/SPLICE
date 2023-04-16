@@ -8,7 +8,14 @@ An initial set of test parameters, designed to mirror the experience of a real i
 ## Reference
 For a full description of `SPLICE`'s structure and test parameters, readers should refer to:
 
-Avanzi, B., Taylor, G., Wang, M., 2021. `SPLICE`: A Synthetic Paid Loss and Incurred Cost Experience Simulator. [arXiv:2109.04058](https://arxiv.org/abs/2109.04058).
+Avanzi, B., Taylor, G., Wang, M., 2023. `SPLICE`: A Synthetic Paid Loss and Incurred Cost Experience Simulator. *Annals of Actuarial Science* 17(1), 7–35. https://doi.org/10.1017/S1748499522000057
+
+A free copy is accessible via [arXiv:2109.04058](https://arxiv.org/abs/2109.04058).
+
+To cite this package in publications, please use:
+```
+citation("SPLICE")
+```
 
 ## Install Package
 To install the [CRAN version of the package](https://CRAN.R-project.org/package=SPLICE), do
