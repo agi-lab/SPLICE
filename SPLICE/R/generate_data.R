@@ -207,6 +207,7 @@ get_params <- function(complexity) {
 #' @param random_seed optional seed for random number generation for
 #' reproducibility.
 #' @param verbose logical; if `TRUE` print a message about the data generated.
+#' @param covariates_obj `covariates`; A \code{\link[SynthETIC]{covariates}} object. Defaults to `NULL`.
 #'
 #' @details `generate_data()` produces datasets of varying levels of complexity,
 #' where 1 represents the simplest, and 5 represents the most complex:
@@ -273,7 +274,8 @@ generate_data <- function(
   complexity = c(1:5),
   data_type = c("claims", "payments", "incurred"),
   random_seed = NULL,
-  verbose = TRUE
+  verbose = TRUE,
+  covariates_obj = NULL
 ) {
 
   # match.arg only works with chars
@@ -313,6 +315,13 @@ generate_data <- function(
 
   # M2: Claim size (constant dollar values)
   claim_sizes <- claim_size(freq_vector)
+  # M2a: Simulation of Covariates
+  if (!is.null(covariates_obj) & class(covariates_obj) != "covariates") {
+    claim_size_covariates <- claim_size_adj(covariate_obj, claim_sizes)
+    covariates_data_obj <- claim_size_covariates$covariates_data
+    claim_sizes <- claim_size_covariates$claim_size_adj
+    output$covariates_data <- covariates_data_obj
+  }
 
   # M3: Claim notification
   ntfy_delays <- claim_notification(
