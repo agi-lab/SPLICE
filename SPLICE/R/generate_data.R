@@ -316,7 +316,7 @@ generate_data <- function(
   # M2: Claim size (constant dollar values)
   claim_sizes <- claim_size(freq_vector)
   # M2a: Simulation of Covariates
-  if (!is.null(covariates_obj) & class(covariates_obj) != "covariates") {
+  if (!is.null(covariates_obj) & isa(covariates_obj, "covariates")) {
     claim_size_covariates <- claim_size_adj(covariates_obj, claim_sizes)
     covariates_data_obj <- claim_size_covariates$covariates_data
     claim_sizes <- claim_size_covariates$claim_size_adj
