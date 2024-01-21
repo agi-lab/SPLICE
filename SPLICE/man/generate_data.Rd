@@ -10,7 +10,8 @@ generate_data(
   complexity = c(1:5),
   data_type = c("claims", "payments", "incurred"),
   random_seed = NULL,
-  verbose = TRUE
+  verbose = TRUE,
+  covariates_obj = NULL
 )
 }
 \arguments{
@@ -30,6 +31,8 @@ user may choose to output only a subset.}
 reproducibility.}
 
 \item{verbose}{logical; if \code{TRUE} print a message about the data generated.}
+
+\item{covariates_obj}{\code{covariates}; A \code{\link[SynthETIC]{covariates}} object. Defaults to \code{NULL}.}
 }
 \value{
 A named list of dataframes:
