@@ -32,7 +32,7 @@ reproducibility.}
 
 \item{verbose}{logical; if \code{TRUE} print a message about the data generated.}
 
-\item{covariates_obj}{\code{covariates}; A \code{\link[SynthETIC]{covariates}} object. Defaults to \code{NULL}.}
+\item{covariates_obj}{a SynthETIC \code{\link[SynthETIC]{covariates}} object (requires \verb{SynthETIC >= 1.1.0}). Defaults to \code{NULL}.}
 }
 \value{
 A named list of dataframes:
@@ -47,7 +47,9 @@ each row representing a unique payment. \cr
 case estimates change over time. Takes the same structure as
 \code{\link{test_incurred_dataset}}, with each row representing a transaction
 (any of claim notification, settlement, a payment, or a case estimate
-revision).
+revision). \cr
+\code{covariates_data} \tab Only if \code{covariates_obj} is not NULL, in which case
+it will return a SynthETIC \code{\link[SynthETIC]{covariates_data}} object.
 }
 }
 \description{
