@@ -23,11 +23,7 @@ Authors:
 \itemize{
   \item Benjamin Avanzi \email{b.avanzi@unimelb.edu.au}
   \item Greg Taylor \email{greg_taylor60@hotmail.com}
-}
-
-Other contributors:
-\itemize{
-  \item William Ho [reviewer]
+  \item William Ho \email{ho.w@unimelb.edu.au}
 }
 
 }
