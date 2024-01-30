@@ -321,7 +321,12 @@ generate_data <- function(
   if (packageVersion("SynthETIC") >= "1.1.0" &
       !is.null(covariates_obj) &
       isa(covariates_obj, "covariates")) {
-    claim_size_covariates <- SynthETIC::claim_size_adj(covariates_obj, claim_sizes)
+    claim_size_covariates <- claim_size_adj(covariates_obj, claim_sizes)
+    claim_size_covariates <- SynthETIC::claim_size_adj(
+        covariates_obj,
+        claim_sizes,
+        random_seed = random_seed
+    )
     covariates_data_obj <- claim_size_covariates$covariates_data
     claim_sizes <- claim_size_covariates$claim_size_adj
     output$covariates_data <- covariates_data_obj
