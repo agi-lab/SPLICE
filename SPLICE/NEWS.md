@@ -1,5 +1,13 @@
 # SPLICE
 
+# SPLICE 1.1.2
+
+## Minor improvements and fixes 
+
+* Update `generate_data` function and included new `test_incurred_datasets_` to 
+complement the inclusion of the `claim_covariates` sub-module in `SynthETIC` 
+version 1.1.0.
+
 # SPLICE 1.1.1
 
 ## Minor improvements and fixes 
